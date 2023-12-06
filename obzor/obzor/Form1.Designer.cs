@@ -1,4 +1,5 @@
-﻿namespace obzor
+﻿
+namespace obzor
 {
     partial class Form1
     {
@@ -35,11 +36,16 @@
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripMenuEditor = new ToolStripMenuItem();
             toolStripMenuItem3 = new ToolStripMenuItem();
+            сохранитьToolStripMenuItem1 = new ToolStripMenuItem();
+            сохранитьToolStripMenuItem = new ToolStripMenuItem();
+            обновитьToolStripMenuItem = new ToolStripMenuItem();
             toolStrip1 = new ToolStrip();
             toolStripLabel1 = new ToolStripLabel();
             toolStripComboBox1 = new ToolStripComboBox();
             openFileDialog1 = new OpenFileDialog();
             panel1 = new Panel();
+            materialSwitch1 = new MaterialSkin.Controls.MaterialSwitch();
+            обновитьToolStripMenuItem1 = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -56,19 +62,20 @@
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.RowTemplate.Height = 25;
-            dataGridView1.Size = new Size(1005, 673);
+            dataGridView1.Size = new Size(999, 606);
             dataGridView1.TabIndex = 4;
             // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, toolStripMenuItem1, toolStripMenuEditor, toolStripMenuItem3 });
-            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, toolStripMenuItem1, toolStripMenuEditor, toolStripMenuItem3, сохранитьToolStripMenuItem1, обновитьToolStripMenuItem1 });
+            menuStrip1.Location = new Point(3, 64);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
-            menuStrip1.Size = new Size(1005, 30);
+            menuStrip1.Size = new Size(999, 30);
             menuStrip1.TabIndex = 5;
             menuStrip1.Text = "menuStrip1";
+            menuStrip1.ItemClicked += menuStrip1_ItemClicked;
             // 
             // файлToolStripMenuItem
             // 
@@ -103,14 +110,33 @@
             toolStripMenuItem3.Name = "toolStripMenuItem3";
             toolStripMenuItem3.Size = new Size(79, 24);
             toolStripMenuItem3.Text = "Удалить";
+            toolStripMenuItem3.Click += toolStripMenuItem3_Click;
+            // 
+            // сохранитьToolStripMenuItem1
+            // 
+            сохранитьToolStripMenuItem1.Name = "сохранитьToolStripMenuItem1";
+            сохранитьToolStripMenuItem1.Size = new Size(97, 24);
+            сохранитьToolStripMenuItem1.Text = "Сохранить";
+            сохранитьToolStripMenuItem1.Click += сохранитьToolStripMenuItem1_Click;
+            // 
+            // сохранитьToolStripMenuItem
+            // 
+            сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
+            сохранитьToolStripMenuItem.Size = new Size(97, 24);
+            сохранитьToolStripMenuItem.Text = "Сохранить";
+            // 
+            // обновитьToolStripMenuItem
+            // 
+            обновитьToolStripMenuItem.Name = "обновитьToolStripMenuItem";
+            обновитьToolStripMenuItem.Size = new Size(32, 19);
             // 
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, toolStripComboBox1 });
-            toolStrip1.Location = new Point(0, 30);
+            toolStrip1.Location = new Point(3, 94);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(1005, 28);
+            toolStrip1.Size = new Size(999, 28);
             toolStrip1.TabIndex = 6;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -135,16 +161,41 @@
             // 
             panel1.Controls.Add(dataGridView1);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(0, 58);
+            panel1.Location = new Point(3, 122);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1005, 673);
+            panel1.Size = new Size(999, 606);
             panel1.TabIndex = 7;
+            // 
+            // materialSwitch1
+            // 
+            materialSwitch1.AutoSize = true;
+            materialSwitch1.BackColor = Color.FromArgb(255, 128, 0);
+            materialSwitch1.Depth = 0;
+            materialSwitch1.Location = new Point(901, 27);
+            materialSwitch1.Margin = new Padding(0);
+            materialSwitch1.MouseLocation = new Point(-1, -1);
+            materialSwitch1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialSwitch1.Name = "materialSwitch1";
+            materialSwitch1.Ripple = true;
+            materialSwitch1.Size = new Size(101, 37);
+            materialSwitch1.TabIndex = 7;
+            materialSwitch1.Text = "Тема ";
+            materialSwitch1.UseVisualStyleBackColor = false;
+            materialSwitch1.CheckedChanged += materialSwitch1_CheckedChanged;
+            // 
+            // обновитьToolStripMenuItem1
+            // 
+            обновитьToolStripMenuItem1.Name = "обновитьToolStripMenuItem1";
+            обновитьToolStripMenuItem1.Size = new Size(92, 24);
+            обновитьToolStripMenuItem1.Text = "Обновить";
+            обновитьToolStripMenuItem1.Click += обновитьToolStripMenuItem1_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1005, 731);
+            Controls.Add(materialSwitch1);
             Controls.Add(panel1);
             Controls.Add(toolStrip1);
             Controls.Add(menuStrip1);
@@ -177,5 +228,10 @@
         private ToolStripMenuItem toolStripMenuEditor;
         private ToolStripMenuItem toolStripMenuItem3;
         private Panel panel1;
+        private ToolStripMenuItem сохранитьToolStripMenuItem;
+        private ToolStripMenuItem обновитьToolStripMenuItem;
+        private MaterialSkin.Controls.MaterialSwitch materialSwitch1;
+        private ToolStripMenuItem сохранитьToolStripMenuItem1;
+        private ToolStripMenuItem обновитьToolStripMenuItem1;
     }
 }
