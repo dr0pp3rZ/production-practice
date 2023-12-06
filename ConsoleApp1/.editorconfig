@@ -1,4 +1,0 @@
-﻿[*.cs]
-
-# IDE0004: Удалить ненужное приведение
-dotnet_diagnostic.IDE0004.severity = silent
