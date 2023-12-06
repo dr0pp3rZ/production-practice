@@ -1,14 +1,14 @@
-using System.ComponentModel;
+using System;
 using System.Data;
 using System.Drawing.Text;
-using System.Xml;
-using ExcelDataReader;
-using MaterialSkin;
-using MaterialSkin.Controls;
-using ClosedXML.Excel;
+using System.IO;
 using System.Windows.Forms;
+using ExcelDataReader;
+using ClosedXML.Excel;
 using OfficeOpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
+using MaterialSkin.Controls;
+using MaterialSkin;
 
 namespace obzor
 {
@@ -16,10 +16,11 @@ namespace obzor
     {
         private string fileName = string.Empty;
         private DataTableCollection tableCollection = null;
-        private DataTable originalDataTable; // Ïåðåìåííàÿ äëÿ õðàíåíèÿ èñõîäíûõ äàííûõ
+        private DataTable originalDataTable; // Исходная таблица для хранения оригинальных данных
         private ExcelPackage excelPackage;
         private ExcelWorksheet worksheet;
         private readonly MaterialSkinManager materialSkinManager;
+
         public Form1()
         {
             InitializeComponent();
@@ -32,14 +33,10 @@ namespace obzor
                 Primary.Orange800, Primary.Orange900,
                 Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
             );
-
-
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void îòêðûòüToolStripMenuItem_Click(object sender, EventArgs e)
@@ -65,14 +62,12 @@ namespace obzor
             {
                 MessageBox.Show(ex.Message, "Îøèáêà!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
 
         private void OpenExcelFile(string path)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read);
-
 
             IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream);
 
@@ -88,10 +83,11 @@ namespace obzor
 
             toolStripComboBox1.Items.Clear();
 
-            foreach (DataTable tabe in tableCollection)
+            foreach (DataTable table in tableCollection)
             {
-                toolStripComboBox1.Items.Add(tabe.TableName);
+                toolStripComboBox1.Items.Add(table.TableName);
             }
+
             toolStripComboBox1.SelectedIndex = 0;
         }
 
@@ -102,7 +98,6 @@ namespace obzor
             dataGridView1.DataSource = table;
         }
 
-        // Ìåòîä çàãðóçêè äàííûõ èç DataGridView è ñîõðàíåíèÿ èõ â ïåðåìåííîé originalDataTable
         private void LoadDataIntoDataTable()
         {
             originalDataTable = ((DataTable)dataGridView1.DataSource).Copy();
@@ -113,24 +108,17 @@ namespace obzor
             if (dataGridView1.ReadOnly == true)
             {
                 dataGridView1.ReadOnly = false;
-                toolStripMenuEditor.Text = "Âûéòè èç ðåæèìà ðåäàêòèðîâàíèÿ";
+                toolStripMenuEditor.Text = "Сохранить изм. в реж. редактирования";
             }
             else
             {
-                DialogResult result = MessageBox.Show("Âû òî÷íî õîòèòå ñîõðàíèòü âíåñ¸ííûå èçìåíåíèÿ?", "Ïîäòâåðæäåíèå", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show("Вы уверены, что хотите сохранить внесенные изменения?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    // Êîä äëÿ ñîõðàíåíèÿ èçìåíåíèé
-                    // Íàïðèìåð, ñîõðàíåíèå äàííûõ â Excel ôàéë èëè áàçó äàííûõ
-                    // dataGridView1.EndEdit();
-                    // (çäåñü êîä äëÿ ñîõðàíåíèÿ äàííûõ)
-
-                    // Ïåðåçàïèñü originalDataTable ïîñëå ñîõðàíåíèÿ èçìåíåíèé
                     LoadDataIntoDataTable();
                 }
                 else
                 {
-                    // Îòìåíà èçìåíåíèé
                     if (originalDataTable != null)
                     {
                         ((DataTable)dataGridView1.DataSource).Clear();
@@ -142,81 +130,117 @@ namespace obzor
                 }
 
                 dataGridView1.ReadOnly = true;
-                toolStripMenuEditor.Text = "Èçìåíèòü";
+                toolStripMenuEditor.Text = "Редактировать";
             }
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (excelPackage != null && worksheet != null)
+            try
             {
-                // Îïðåäåëèòå íîìåð ñëåäóþùåé ñòðîêè äëÿ âñòàâêè
-                int nextRow = worksheet.Dimension.End.Row + 1;
+                dataGridView1.EndEdit();
 
-                // Ïîëó÷èòå äîñòóï ê äàííûì èç DataGridView
-                DataGridViewRow newDataGridViewRow = new DataGridViewRow();
-                newDataGridViewRow.CreateCells(dataGridView1);
+                DataTable table = (DataTable)dataGridView1.DataSource;
 
-                // Äîáàâüòå âàøó ëîãèêó çäåñü äëÿ çàïîëíåíèÿ íîâîé ñòðîêè äàííûìè èç DataGridView
-                // Íàïðèìåð, âû ìîæåòå ïðîéòè ïî ÿ÷åéêàì DataGridView è çàïîëíèòü íîâóþ ñòðîêó äàííûìè
+                DataTable newTable = table.Clone();
 
-                // Ïîñëå òîãî, êàê âû çàïîëíèòå íîâóþ ñòðîêó äàííûìè, âñòàâüòå å¸ â Excel
-                for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                foreach (DataGridViewRow row in dataGridView1.Rows)
                 {
-                    worksheet.Cells[nextRow, i + 1].Value = newDataGridViewRow.Cells[i].Value;
+                    DataRow newRow = newTable.NewRow();
+                    for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                    {
+                        newRow[i] = row.Cells[i].Value;
+                    }
+                    newTable.Rows.Add(newRow);
                 }
 
-                // Ñîõðàíèòå èçìåíåíèÿ â ôàéëå Excel
-                excelPackage.Save();
+                table.Clear();
+                foreach (DataRow row in newTable.Rows)
+                {
+                    table.ImportRow(row);
+                }
 
-                MessageBox.Show("Íîâàÿ ñòðîêà äîáàâëåíà â ôàéë Excel.");
+                MessageBox.Show("Строки добавлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Ôàéë Excel íå çàãðóæåí.");
+                MessageBox.Show("Ошибка при добавлении строк: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            //if (excelPackage != null && worksheet != null)
+            //{
+            //    int nextRow = worksheet.Dimension.End.Row + 1;
+
+            //    DataGridViewRow newDataGridViewRow = new DataGridViewRow();
+            //    newDataGridViewRow.CreateCells(dataGridView1);
+
+            //    for (int i = 0; i < dataGridView1.Columns.Count; i++)
+            //    {
+            //        worksheet.Cells[nextRow, i + 1].Value = newDataGridViewRow.Cells[i].Value;
+            //    }
+
+            //    excelPackage.Save();
+
+            //    MessageBox.Show("Новая строка добавлена в файл Excel.");
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Файл Excel не загружен.");
+            //}
         }
-    }
-}
+
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
         {
             try
             {
-                // Ïîëó÷àåì âûáðàííûå ÿ÷åéêè
                 DataGridViewSelectedCellCollection selectedCells = dataGridView1.SelectedCells;
 
                 if (selectedCells.Count > 0)
                 {
-                    // Ïîëó÷àåì èíäåêñû âûáðàííûõ ÿ÷ååê
                     int rowIndex = selectedCells[0].RowIndex;
                     int columnIndex = selectedCells[0].ColumnIndex;
 
-                    // Ïîëó÷àåì DataTable è óäàëÿåì ÿ÷åéêó
                     DataTable table = (DataTable)dataGridView1.DataSource;
                     table.Rows[rowIndex][columnIndex] = DBNull.Value;
 
-                    // Îáíîâëÿåì DataGridView
                     dataGridView1.Refresh();
                 }
                 else
                 {
-                    MessageBox.Show("Âûáåðèòå ÿ÷åéêó äëÿ óäàëåíèÿ.", "Ïðåäóïðåæäåíèå", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Выберите ячейку для очистки.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Îøèáêà ïðè óäàëåíèè ÿ÷åéêè: " + ex.Message, "Îøèáêà", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка при очистке ячейки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void materialSwitch1_CheckedChanged(object sender, EventArgs e)
         {
-
+            if (materialSwitch1.Checked)
+            {
+                materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
+                materialSkinManager.ColorScheme = new ColorScheme(
+                    Primary.Teal800, Primary.Teal900,
+                    Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
+                );
+            }
+            else
+            {
+                materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
+                materialSkinManager.ColorScheme = new ColorScheme(
+                    Primary.Orange800, Primary.Orange900,
+                    Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
+                );
+            }
         }
 
-        private void ñîõðàíèòüToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+        }
+
+        private void сохранитьToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             try
             {
@@ -254,7 +278,7 @@ namespace obzor
             }
         }
 
-        private void îáíîâèòüToolStripMenuItem_Click(object sender, EventArgs e)
+        private void обновитьToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             try
             {
@@ -291,57 +315,6 @@ namespace obzor
             {
                 MessageBox.Show("Îøèáêà ïðè îáíîâëåíèè äàííûõ: " + ex.Message, "Îøèáêà", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void materialSwitch1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (materialSwitch1.Checked)
-            {
-                materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
-                materialSkinManager.ColorScheme = new ColorScheme(
-                    Primary.Teal800, Primary.Teal900,
-                    Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
-                );
-            }
-            else
-            {
-                materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-                materialSkinManager.ColorScheme = new ColorScheme(
-                    Primary.Orange800, Primary.Orange900,
-                    Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
-                );
-            }
-        }
-
-        private void materialSlider1_Click(object sender, EventArgs e)
-        {
-            // Ïðåîáðàçóåì çíà÷åíèå ñëàéäåðà â êîýôôèöèåíò ìàñøòàáèðîâàíèÿ (îò 0.1 äî 2.0, íàïðèìåð)
-            float scaleValue = 0.1f + (float)materialSlider1.Value / 50.0f;
-
-            // Ïðèìåíÿåì ìàñøòàáèðîâàíèå ê ôîðìå
-            this.Scale(new SizeF(scaleValue, scaleValue));
-
-            // Îáíîâëÿåì ìàñøòàáèðîâàíèå è ðàñïîëîæåíèå êîíòðîëîâ â ôîðìå
-            foreach (Control control in this.Controls)
-            {
-                control.Left = (int)(control.Left * scaleValue);
-                control.Top = (int)(control.Top * scaleValue);
-                control.Width = (int)(control.Width * scaleValue);
-                control.Height = (int)(control.Height * scaleValue);
-
-                // Äîïîëíèòåëüíûå íàñòðîéêè äëÿ îïðåäåëåííûõ òèïîâ êîíòðîëîâ
-                if (control is TextBox)
-                {
-                    TextBox textBox = (TextBox)control;
-                    textBox.Font = new Font(textBox.Font.FontFamily, textBox.Font.Size * scaleValue);
-                }
-                // Äîáàâüòå äîïîëíèòåëüíûå íàñòðîéêè äëÿ äðóãèõ òèïîâ êîíòðîëîâ, åñëè íåîáõîäèìî
-            }
-        }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
         }
     }
 }
