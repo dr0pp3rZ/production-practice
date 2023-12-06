@@ -168,7 +168,7 @@
             // 
             materialSlider1.Depth = 0;
             materialSlider1.ForeColor = Color.FromArgb(222, 0, 0, 0);
-            materialSlider1.Location = new Point(575, 24);
+            materialSlider1.Location = new Point(563, 24);
             materialSlider1.MouseState = MaterialSkin.MouseState.HOVER;
             materialSlider1.Name = "materialSlider1";
             materialSlider1.Size = new Size(323, 40);
