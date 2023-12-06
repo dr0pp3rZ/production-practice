@@ -4,6 +4,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+.vs/
+ConsoleApp1/.editorconfig
+Console1App1/ConsoleApp1/Microsoft
+ConsoleApp1/ConsoleApp1/bin/Debug
+
 # User-specific files
 *.rsuser
 *.suo
