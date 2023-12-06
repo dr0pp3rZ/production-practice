@@ -35,11 +35,18 @@
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripMenuEditor = new ToolStripMenuItem();
             toolStripMenuItem3 = new ToolStripMenuItem();
+            сохранитьToolStripMenuItem = new ToolStripMenuItem();
+            обновитьToolStripMenuItem = new ToolStripMenuItem();
             toolStrip1 = new ToolStrip();
             toolStripLabel1 = new ToolStripLabel();
             toolStripComboBox1 = new ToolStripComboBox();
             openFileDialog1 = new OpenFileDialog();
+
             panel1 = new Panel();
+
+            materialSwitch1 = new MaterialSkin.Controls.MaterialSwitch();
+            materialSlider1 = new MaterialSkin.Controls.MaterialSlider();
+
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -49,6 +56,7 @@
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+          
             dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.Location = new Point(0, 0);
             dataGridView1.Margin = new Padding(3, 4, 3, 4);
@@ -57,7 +65,9 @@
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.RowTemplate.Height = 25;
             dataGridView1.Size = new Size(1005, 673);
+
             dataGridView1.TabIndex = 4;
+            dataGridView1.CellContentClick += dataGridView1_CellContentClick;
             // 
             // menuStrip1
             // 
@@ -67,8 +77,10 @@
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
             menuStrip1.Size = new Size(1005, 30);
+
             menuStrip1.TabIndex = 5;
             menuStrip1.Text = "menuStrip1";
+            menuStrip1.ItemClicked += menuStrip1_ItemClicked;
             // 
             // файлToolStripMenuItem
             // 
@@ -92,7 +104,7 @@
             toolStripMenuItem1.Click += toolStripMenuItem1_Click;
             // 
             // toolStripMenuEditor
-            // 
+            //
             toolStripMenuEditor.Name = "toolStripMenuEditor";
             toolStripMenuEditor.Size = new Size(92, 24);
             toolStripMenuEditor.Text = "Изменить";
@@ -103,6 +115,21 @@
             toolStripMenuItem3.Name = "toolStripMenuItem3";
             toolStripMenuItem3.Size = new Size(79, 24);
             toolStripMenuItem3.Text = "Удалить";
+            toolStripMenuItem3.Click += toolStripMenuItem3_Click;
+            // 
+            // сохранитьToolStripMenuItem
+            // 
+            сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
+            сохранитьToolStripMenuItem.Size = new Size(97, 24);
+            сохранитьToolStripMenuItem.Text = "Сохранить";
+            сохранитьToolStripMenuItem.Click += сохранитьToolStripMenuItem_Click;
+            // 
+            // обновитьToolStripMenuItem
+            // 
+            обновитьToolStripMenuItem.Name = "обновитьToolStripMenuItem";
+            обновитьToolStripMenuItem.Size = new Size(92, 24);
+            обновитьToolStripMenuItem.Text = "Обновить";
+            обновитьToolStripMenuItem.Click += обновитьToolStripMenuItem_Click;
             // 
             // toolStrip1
             // 
@@ -139,6 +166,34 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(1005, 673);
             panel1.TabIndex = 7;
+            // materialSwitch1
+            // 
+            materialSwitch1.AutoSize = true;
+            materialSwitch1.BackColor = Color.FromArgb(255, 128, 0);
+            materialSwitch1.Depth = 0;
+            materialSwitch1.Location = new Point(901, 27);
+            materialSwitch1.Margin = new Padding(0);
+            materialSwitch1.MouseLocation = new Point(-1, -1);
+            materialSwitch1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialSwitch1.Name = "materialSwitch1";
+            materialSwitch1.Ripple = true;
+            materialSwitch1.Size = new Size(101, 37);
+            materialSwitch1.TabIndex = 7;
+            materialSwitch1.Text = "Тема ";
+            materialSwitch1.UseVisualStyleBackColor = false;
+            materialSwitch1.CheckedChanged += materialSwitch1_CheckedChanged;
+            // 
+            // materialSlider1
+            // 
+            materialSlider1.Depth = 0;
+            materialSlider1.ForeColor = Color.FromArgb(222, 0, 0, 0);
+            materialSlider1.Location = new Point(563, 24);
+            materialSlider1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialSlider1.Name = "materialSlider1";
+            materialSlider1.Size = new Size(323, 40);
+            materialSlider1.TabIndex = 8;
+            materialSlider1.Text = "не трогать!!!";
+            materialSlider1.Click += materialSlider1_Click;
             // 
             // Form1
             // 
@@ -146,6 +201,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1005, 731);
             Controls.Add(panel1);
+            Controls.Add(materialSlider1);
+            Controls.Add(materialSwitch1);
             Controls.Add(toolStrip1);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
@@ -177,5 +234,9 @@
         private ToolStripMenuItem toolStripMenuEditor;
         private ToolStripMenuItem toolStripMenuItem3;
         private Panel panel1;
+        private ToolStripMenuItem сохранитьToolStripMenuItem;
+        private ToolStripMenuItem обновитьToolStripMenuItem;
+        private MaterialSkin.Controls.MaterialSwitch materialSwitch1;
+        private MaterialSkin.Controls.MaterialSlider materialSlider1;
     }
 }
