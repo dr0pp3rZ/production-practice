@@ -37,6 +37,7 @@ namespace obzor
             toolStripMenuEditor = new ToolStripMenuItem();
             toolStripMenuItem3 = new ToolStripMenuItem();
             сохранитьToolStripMenuItem1 = new ToolStripMenuItem();
+            обновитьToolStripMenuItem1 = new ToolStripMenuItem();
             сохранитьToolStripMenuItem = new ToolStripMenuItem();
             обновитьToolStripMenuItem = new ToolStripMenuItem();
             toolStrip1 = new ToolStrip();
@@ -45,7 +46,6 @@ namespace obzor
             openFileDialog1 = new OpenFileDialog();
             panel1 = new Panel();
             materialSwitch1 = new MaterialSkin.Controls.MaterialSwitch();
-            обновитьToolStripMenuItem1 = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -87,8 +87,9 @@ namespace obzor
             // открытьToolStripMenuItem
             // 
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            открытьToolStripMenuItem.Size = new Size(160, 26);
+            открытьToolStripMenuItem.Size = new Size(224, 26);
             открытьToolStripMenuItem.Text = "Загрузить";
+            открытьToolStripMenuItem.Click += открытьToolStripMenuItem_Click_1;
             // 
             // toolStripMenuItem1
             // 
@@ -117,6 +118,13 @@ namespace obzor
             сохранитьToolStripMenuItem1.Size = new Size(97, 24);
             сохранитьToolStripMenuItem1.Text = "Сохранить";
             сохранитьToolStripMenuItem1.Click += сохранитьToolStripMenuItem1_Click;
+            // 
+            // обновитьToolStripMenuItem1
+            // 
+            обновитьToolStripMenuItem1.Name = "обновитьToolStripMenuItem1";
+            обновитьToolStripMenuItem1.Size = new Size(92, 24);
+            обновитьToolStripMenuItem1.Text = "Обновить";
+            обновитьToolStripMenuItem1.Click += обновитьToolStripMenuItem1_Click;
             // 
             // сохранитьToolStripMenuItem
             // 
@@ -181,13 +189,6 @@ namespace obzor
             materialSwitch1.Text = "Тема ";
             materialSwitch1.UseVisualStyleBackColor = false;
             materialSwitch1.CheckedChanged += materialSwitch1_CheckedChanged;
-            // 
-            // обновитьToolStripMenuItem1
-            // 
-            обновитьToolStripMenuItem1.Name = "обновитьToolStripMenuItem1";
-            обновитьToolStripMenuItem1.Size = new Size(92, 24);
-            обновитьToolStripMenuItem1.Text = "Обновить";
-            обновитьToolStripMenuItem1.Click += обновитьToolStripMenuItem1_Click;
             // 
             // Form1
             // 

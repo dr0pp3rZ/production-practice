@@ -316,5 +316,57 @@ namespace obzor
                 MessageBox.Show("Îøèáêà ïðè îáíîâëåíèè äàííûõ: " + ex.Message, "Îøèáêà", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DialogResult res = openFileDialog1.ShowDialog();
+
+                if (res == DialogResult.OK)
+                {
+                    fileName = openFileDialog1.FileName;
+
+                    Text = fileName;
+
+                    OpenExcelFile(fileName);
+                }
+                else
+                {
+                    throw new Exception("Файл не выбран!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DialogResult res = openFileDialog1.ShowDialog();
+
+                if (res == DialogResult.OK)
+                {
+                    fileName = openFileDialog1.FileName;
+
+                    Text = fileName;
+
+                    OpenExcelFile(fileName);
+                }
+                else
+                {
+                    throw new Exception("Файл не выбран!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
     }
 }
