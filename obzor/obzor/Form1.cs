@@ -5,13 +5,10 @@ using System.Xml;
 using ExcelDataReader;
 using MaterialSkin;
 using MaterialSkin.Controls;
-using OfficeOpenXml;
-using System;
-using System.IO;
-using System.Windows.Forms;
 using ClosedXML.Excel;
-
-
+using System.Windows.Forms;
+using OfficeOpenXml;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace obzor
 {
@@ -19,12 +16,15 @@ namespace obzor
     {
         private string fileName = string.Empty;
         private DataTableCollection tableCollection = null;
+        private DataTable originalDataTable; // ГЏГҐГ°ГҐГ¬ГҐГ­Г­Г Гї Г¤Г«Гї ГµГ°Г Г­ГҐГ­ГЁГї ГЁГ±ГµГ®Г¤Г­Г»Гµ Г¤Г Г­Г­Г»Гµ
+        private ExcelPackage excelPackage;
+        private ExcelWorksheet worksheet;
         private readonly MaterialSkinManager materialSkinManager;
         public Form1()
         {
             InitializeComponent();
 
-            // Инициализация materialSkinManager
+            // Г€Г­ГЁГ¶ГЁГ Г«ГЁГ§Г Г¶ГЁГї materialSkinManager
             materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
@@ -42,7 +42,7 @@ namespace obzor
 
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Г®ГІГЄГ°Г»ГІГјToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -58,12 +58,12 @@ namespace obzor
                 }
                 else
                 {
-                    throw new Exception("Файл не выбран!");
+                    throw new Exception("Г”Г Г©Г« Г­ГҐ ГўГ»ГЎГ°Г Г­!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "ГЋГёГЁГЎГЄГ !", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -102,34 +102,111 @@ namespace obzor
             dataGridView1.DataSource = table;
         }
 
+        // ГЊГҐГІГ®Г¤ Г§Г ГЈГ°ГіГ§ГЄГЁ Г¤Г Г­Г­Г»Гµ ГЁГ§ DataGridView ГЁ Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї ГЁГµ Гў ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г®Г© originalDataTable
+        private void LoadDataIntoDataTable()
+        {
+            originalDataTable = ((DataTable)dataGridView1.DataSource).Copy();
+        }
+
+        private void toolStripMenuEditor_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.ReadOnly == true)
+            {
+                dataGridView1.ReadOnly = false;
+                toolStripMenuEditor.Text = "Г‚Г»Г©ГІГЁ ГЁГ§ Г°ГҐГ¦ГЁГ¬Г  Г°ГҐГ¤Г ГЄГІГЁГ°Г®ГўГ Г­ГЁГї";
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Г‚Г» ГІГ®Г·Г­Г® ГµГ®ГІГЁГІГҐ Г±Г®ГµГ°Г Г­ГЁГІГј ГўГ­ГҐГ±ВёГ­Г­Г»ГҐ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї?", "ГЏГ®Г¤ГІГўГҐГ°Г¦Г¤ГҐГ­ГЁГҐ", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    // ГЉГ®Г¤ Г¤Г«Гї Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГ©
+                    // ГЌГ ГЇГ°ГЁГ¬ГҐГ°, Г±Г®ГµГ°Г Г­ГҐГ­ГЁГҐ Г¤Г Г­Г­Г»Гµ Гў Excel ГґГ Г©Г« ГЁГ«ГЁ ГЎГ Г§Гі Г¤Г Г­Г­Г»Гµ
+                    // dataGridView1.EndEdit();
+                    // (Г§Г¤ГҐГ±Гј ГЄГ®Г¤ Г¤Г«Гї Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї Г¤Г Г­Г­Г»Гµ)
+
+                    // ГЏГҐГ°ГҐГ§Г ГЇГЁГ±Гј originalDataTable ГЇГ®Г±Г«ГҐ Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГ©
+                    LoadDataIntoDataTable();
+                }
+                else
+                {
+                    // ГЋГІГ¬ГҐГ­Г  ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГ©
+                    if (originalDataTable != null)
+                    {
+                        ((DataTable)dataGridView1.DataSource).Clear();
+                        foreach (DataRow row in originalDataTable.Rows)
+                        {
+                            ((DataTable)dataGridView1.DataSource).ImportRow(row);
+                        }
+                    }
+                }
+
+                dataGridView1.ReadOnly = true;
+                toolStripMenuEditor.Text = "Г€Г§Г¬ГҐГ­ГЁГІГј";
+            }
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (excelPackage != null && worksheet != null)
+            {
+                // ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐ Г­Г®Г¬ГҐГ° Г±Г«ГҐГ¤ГіГѕГ№ГҐГ© Г±ГІГ°Г®ГЄГЁ Г¤Г«Гї ГўГ±ГІГ ГўГЄГЁ
+                int nextRow = worksheet.Dimension.End.Row + 1;
+
+                // ГЏГ®Г«ГіГ·ГЁГІГҐ Г¤Г®Г±ГІГіГЇ ГЄ Г¤Г Г­Г­Г»Г¬ ГЁГ§ DataGridView
+                DataGridViewRow newDataGridViewRow = new DataGridViewRow();
+                newDataGridViewRow.CreateCells(dataGridView1);
+
+                // Г„Г®ГЎГ ГўГјГІГҐ ГўГ ГёГі Г«Г®ГЈГЁГЄГі Г§Г¤ГҐГ±Гј Г¤Г«Гї Г§Г ГЇГ®Г«Г­ГҐГ­ГЁГї Г­Г®ГўГ®Г© Г±ГІГ°Г®ГЄГЁ Г¤Г Г­Г­Г»Г¬ГЁ ГЁГ§ DataGridView
+                // ГЌГ ГЇГ°ГЁГ¬ГҐГ°, ГўГ» Г¬Г®Г¦ГҐГІГҐ ГЇГ°Г®Г©ГІГЁ ГЇГ® ГїГ·ГҐГ©ГЄГ Г¬ DataGridView ГЁ Г§Г ГЇГ®Г«Г­ГЁГІГј Г­Г®ГўГіГѕ Г±ГІГ°Г®ГЄГі Г¤Г Г­Г­Г»Г¬ГЁ
+
+                // ГЏГ®Г±Г«ГҐ ГІГ®ГЈГ®, ГЄГ ГЄ ГўГ» Г§Г ГЇГ®Г«Г­ГЁГІГҐ Г­Г®ГўГіГѕ Г±ГІГ°Г®ГЄГі Г¤Г Г­Г­Г»Г¬ГЁ, ГўГ±ГІГ ГўГјГІГҐ ГҐВё Гў Excel
+                for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                {
+                    worksheet.Cells[nextRow, i + 1].Value = newDataGridViewRow.Cells[i].Value;
+                }
+
+                // Г‘Г®ГµГ°Г Г­ГЁГІГҐ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї Гў ГґГ Г©Г«ГҐ Excel
+                excelPackage.Save();
+
+                MessageBox.Show("ГЌГ®ГўГ Гї Г±ГІГ°Г®ГЄГ  Г¤Г®ГЎГ ГўГ«ГҐГ­Г  Гў ГґГ Г©Г« Excel.");
+            }
+            else
+            {
+                MessageBox.Show("Г”Г Г©Г« Excel Г­ГҐ Г§Г ГЈГ°ГіГ¦ГҐГ­.");
+            }
+
+        }
+    }
+}
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
         {
             try
             {
-                // Получаем выбранные ячейки
+                // ГЏГ®Г«ГіГ·Г ГҐГ¬ ГўГ»ГЎГ°Г Г­Г­Г»ГҐ ГїГ·ГҐГ©ГЄГЁ
                 DataGridViewSelectedCellCollection selectedCells = dataGridView1.SelectedCells;
 
                 if (selectedCells.Count > 0)
                 {
-                    // Получаем индексы выбранных ячеек
+                    // ГЏГ®Г«ГіГ·Г ГҐГ¬ ГЁГ­Г¤ГҐГЄГ±Г» ГўГ»ГЎГ°Г Г­Г­Г»Гµ ГїГ·ГҐГҐГЄ
                     int rowIndex = selectedCells[0].RowIndex;
                     int columnIndex = selectedCells[0].ColumnIndex;
 
-                    // Получаем DataTable и удаляем ячейку
+                    // ГЏГ®Г«ГіГ·Г ГҐГ¬ DataTable ГЁ ГіГ¤Г Г«ГїГҐГ¬ ГїГ·ГҐГ©ГЄГі
                     DataTable table = (DataTable)dataGridView1.DataSource;
                     table.Rows[rowIndex][columnIndex] = DBNull.Value;
 
-                    // Обновляем DataGridView
+                    // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ DataGridView
                     dataGridView1.Refresh();
                 }
                 else
                 {
-                    MessageBox.Show("Выберите ячейку для удаления.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Г‚Г»ГЎГҐГ°ГЁГІГҐ ГїГ·ГҐГ©ГЄГі Г¤Г«Гї ГіГ¤Г Г«ГҐГ­ГЁГї.", "ГЏГ°ГҐГ¤ГіГЇГ°ГҐГ¦Г¤ГҐГ­ГЁГҐ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при удалении ячейки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ ГіГ¤Г Г«ГҐГ­ГЁГЁ ГїГ·ГҐГ©ГЄГЁ: " + ex.Message, "ГЋГёГЁГЎГЄГ ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -139,58 +216,58 @@ namespace obzor
 
         }
 
-        private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Г±Г®ГµГ°Г Г­ГЁГІГјToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                // Завершаем редактирование ячейки и применяем все изменения
+                // Г‡Г ГўГҐГ°ГёГ ГҐГ¬ Г°ГҐГ¤Г ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГїГ·ГҐГ©ГЄГЁ ГЁ ГЇГ°ГЁГ¬ГҐГ­ГїГҐГ¬ ГўГ±ГҐ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї
                 dataGridView1.EndEdit();
 
-                // Получаем DataTable из источника данных DataGridView
+                // ГЏГ®Г«ГіГ·Г ГҐГ¬ DataTable ГЁГ§ ГЁГ±ГІГ®Г·Г­ГЁГЄГ  Г¤Г Г­Г­Г»Гµ DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
                 if (!string.IsNullOrEmpty(fileName))
                 {
-                    // Создаем экземпляр класса для работы с Excel
+                    // Г‘Г®Г§Г¤Г ГҐГ¬ ГЅГЄГ§ГҐГ¬ГЇГ«ГїГ° ГЄГ«Г Г±Г±Г  Г¤Г«Гї Г°Г ГЎГ®ГІГ» Г± Excel
                     using (XLWorkbook workbook = new XLWorkbook())
                     {
-                        // Создаем новый лист в Excel
+                        // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© Г«ГЁГ±ГІ Гў Excel
                         var worksheet = workbook.Worksheets.Add("Sheet1");
 
-                        // Заполняем лист данными из DataTable
+                        // Г‡Г ГЇГ®Г«Г­ГїГҐГ¬ Г«ГЁГ±ГІ Г¤Г Г­Г­Г»Г¬ГЁ ГЁГ§ DataTable
                         worksheet.Cell(1, 1).InsertTable(table);
 
-                        // Сохраняем Excel-файл в тот же самый файл
+                        // Г‘Г®ГµГ°Г Г­ГїГҐГ¬ Excel-ГґГ Г©Г« Гў ГІГ®ГІ Г¦ГҐ Г±Г Г¬Г»Г© ГґГ Г©Г«
                         workbook.SaveAs(fileName);
 
-                        MessageBox.Show("Данные сохранены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Г„Г Г­Г­Г»ГҐ Г±Г®ГµГ°Г Г­ГҐГ­Г» ГіГ±ГЇГҐГёГ­Г®.", "Г“Г±ГЇГҐГµ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Файл не был открыт. Выберите файл перед сохранением.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Г”Г Г©Г« Г­ГҐ ГЎГ»Г« Г®ГІГЄГ°Г»ГІ. Г‚Г»ГЎГҐГ°ГЁГІГҐ ГґГ Г©Г« ГЇГҐГ°ГҐГ¤ Г±Г®ГµГ°Г Г­ГҐГ­ГЁГҐГ¬.", "ГЏГ°ГҐГ¤ГіГЇГ°ГҐГ¦Г¤ГҐГ­ГЁГҐ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при сохранении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г±Г®ГµГ°Г Г­ГҐГ­ГЁГЁ Г¤Г Г­Г­Г»Гµ: " + ex.Message, "ГЋГёГЁГЎГЄГ ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void обновитьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Г®ГЎГ­Г®ГўГЁГІГјToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                // Завершаем редактирование ячейки и применяем все изменения
+                // Г‡Г ГўГҐГ°ГёГ ГҐГ¬ Г°ГҐГ¤Г ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГїГ·ГҐГ©ГЄГЁ ГЁ ГЇГ°ГЁГ¬ГҐГ­ГїГҐГ¬ ГўГ±ГҐ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї
                 dataGridView1.EndEdit();
 
-                // Получаем DataTable из источника данных DataGridView
+                // ГЏГ®Г«ГіГ·Г ГҐГ¬ DataTable ГЁГ§ ГЁГ±ГІГ®Г·Г­ГЁГЄГ  Г¤Г Г­Г­Г»Гµ DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
-                // Создаем новый DataTable с той же структурой
+                // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© DataTable Г± ГІГ®Г© Г¦ГҐ Г±ГІГ°ГіГЄГІГіГ°Г®Г©
                 DataTable newTable = table.Clone();
 
-                // Копируем данные из DataGridView в новый DataTable
+                // ГЉГ®ГЇГЁГ°ГіГҐГ¬ Г¤Г Г­Г­Г»ГҐ ГЁГ§ DataGridView Гў Г­Г®ГўГ»Г© DataTable
                 foreach (DataGridViewRow row in dataGridView1.Rows)
                 {
                     DataRow newRow = newTable.NewRow();
@@ -201,18 +278,18 @@ namespace obzor
                     newTable.Rows.Add(newRow);
                 }
 
-                // Заменяем старый DataTable новым DataTable
+                // Г‡Г Г¬ГҐГ­ГїГҐГ¬ Г±ГІГ Г°Г»Г© DataTable Г­Г®ГўГ»Г¬ DataTable
                 table.Clear();
                 foreach (DataRow row in newTable.Rows)
                 {
                     table.ImportRow(row);
                 }
 
-                MessageBox.Show("Данные обновлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Г„Г Г­Г­Г»ГҐ Г®ГЎГ­Г®ГўГ«ГҐГ­Г» ГіГ±ГЇГҐГёГ­Г®.", "Г“Г±ГЇГҐГµ", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при обновлении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГЁ Г¤Г Г­Г­Г»Гµ: " + ex.Message, "ГЋГёГЁГЎГЄГ ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -238,13 +315,13 @@ namespace obzor
 
         private void materialSlider1_Click(object sender, EventArgs e)
         {
-            // Преобразуем значение слайдера в коэффициент масштабирования (от 0.1 до 2.0, например)
+            // ГЏГ°ГҐГ®ГЎГ°Г Г§ГіГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГҐ Г±Г«Г Г©Г¤ГҐГ°Г  Гў ГЄГ®ГЅГґГґГЁГ¶ГЁГҐГ­ГІ Г¬Г Г±ГёГІГ ГЎГЁГ°Г®ГўГ Г­ГЁГї (Г®ГІ 0.1 Г¤Г® 2.0, Г­Г ГЇГ°ГЁГ¬ГҐГ°)
             float scaleValue = 0.1f + (float)materialSlider1.Value / 50.0f;
 
-            // Применяем масштабирование к форме
+            // ГЏГ°ГЁГ¬ГҐГ­ГїГҐГ¬ Г¬Г Г±ГёГІГ ГЎГЁГ°Г®ГўГ Г­ГЁГҐ ГЄ ГґГ®Г°Г¬ГҐ
             this.Scale(new SizeF(scaleValue, scaleValue));
 
-            // Обновляем масштабирование и расположение контролов в форме
+            // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ Г¬Г Г±ГёГІГ ГЎГЁГ°Г®ГўГ Г­ГЁГҐ ГЁ Г°Г Г±ГЇГ®Г«Г®Г¦ГҐГ­ГЁГҐ ГЄГ®Г­ГІГ°Г®Г«Г®Гў Гў ГґГ®Г°Г¬ГҐ
             foreach (Control control in this.Controls)
             {
                 control.Left = (int)(control.Left * scaleValue);
@@ -252,13 +329,13 @@ namespace obzor
                 control.Width = (int)(control.Width * scaleValue);
                 control.Height = (int)(control.Height * scaleValue);
 
-                // Дополнительные настройки для определенных типов контролов
+                // Г„Г®ГЇГ®Г«Г­ГЁГІГҐГ«ГјГ­Г»ГҐ Г­Г Г±ГІГ°Г®Г©ГЄГЁ Г¤Г«Гї Г®ГЇГ°ГҐГ¤ГҐГ«ГҐГ­Г­Г»Гµ ГІГЁГЇГ®Гў ГЄГ®Г­ГІГ°Г®Г«Г®Гў
                 if (control is TextBox)
                 {
                     TextBox textBox = (TextBox)control;
                     textBox.Font = new Font(textBox.Font.FontFamily, textBox.Font.Size * scaleValue);
                 }
-                // Добавьте дополнительные настройки для других типов контролов, если необходимо
+                // Г„Г®ГЎГ ГўГјГІГҐ Г¤Г®ГЇГ®Г«Г­ГЁГІГҐГ«ГјГ­Г»ГҐ Г­Г Г±ГІГ°Г®Г©ГЄГЁ Г¤Г«Гї Г¤Г°ГіГЈГЁГµ ГІГЁГЇГ®Гў ГЄГ®Г­ГІГ°Г®Г«Г®Гў, ГҐГ±Г«ГЁ Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г®
             }
         }
 

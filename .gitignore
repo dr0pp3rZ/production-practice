@@ -8,6 +8,7 @@
 ConsoleApp1/.editorconfig
 Console1App1/ConsoleApp1/Microsoft
 ConsoleApp1/ConsoleApp1/bin/Debug
+*.xlsx
 
 # User-specific files
 *.rsuser
