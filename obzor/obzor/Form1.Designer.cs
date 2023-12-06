@@ -89,7 +89,6 @@ namespace obzor
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
             открытьToolStripMenuItem.Size = new Size(160, 26);
             открытьToolStripMenuItem.Text = "Загрузить";
-            открытьToolStripMenuItem.Click += открытьToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
