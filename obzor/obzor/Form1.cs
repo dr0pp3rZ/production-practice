@@ -4,6 +4,10 @@ using System.Drawing.Text;
 using System.Xml;
 using ExcelDataReader;
 using MaterialSkin.Controls;
+using ClosedXML.Excel;
+using System.Windows.Forms;
+using OfficeOpenXml;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace obzor
 {
@@ -11,6 +15,10 @@ namespace obzor
     {
         private string fileName = string.Empty;
         private DataTableCollection tableCollection = null;
+        private DataTable originalDataTable; // Переменная для хранения исходных данных
+        private ExcelPackage excelPackage;
+        private ExcelWorksheet worksheet;
+
         public Form1()
         {
 
@@ -84,6 +92,81 @@ namespace obzor
 
             dataGridView1.DataSource = table;
         }
-    }
 
+        // Метод загрузки данных из DataGridView и сохранения их в переменной originalDataTable
+        private void LoadDataIntoDataTable()
+        {
+            originalDataTable = ((DataTable)dataGridView1.DataSource).Copy();
+        }
+
+        private void toolStripMenuEditor_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.ReadOnly == true)
+            {
+                dataGridView1.ReadOnly = false;
+                toolStripMenuEditor.Text = "Выйти из режима редактирования";
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Вы точно хотите сохранить внесённые изменения?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    // Код для сохранения изменений
+                    // Например, сохранение данных в Excel файл или базу данных
+                    // dataGridView1.EndEdit();
+                    // (здесь код для сохранения данных)
+
+                    // Перезапись originalDataTable после сохранения изменений
+                    LoadDataIntoDataTable();
+                }
+                else
+                {
+                    // Отмена изменений
+                    if (originalDataTable != null)
+                    {
+                        ((DataTable)dataGridView1.DataSource).Clear();
+                        foreach (DataRow row in originalDataTable.Rows)
+                        {
+                            ((DataTable)dataGridView1.DataSource).ImportRow(row);
+                        }
+                    }
+                }
+
+                dataGridView1.ReadOnly = true;
+                toolStripMenuEditor.Text = "Изменить";
+            }
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (excelPackage != null && worksheet != null)
+            {
+                // Определите номер следующей строки для вставки
+                int nextRow = worksheet.Dimension.End.Row + 1;
+
+                // Получите доступ к данным из DataGridView
+                DataGridViewRow newDataGridViewRow = new DataGridViewRow();
+                newDataGridViewRow.CreateCells(dataGridView1);
+
+                // Добавьте вашу логику здесь для заполнения новой строки данными из DataGridView
+                // Например, вы можете пройти по ячейкам DataGridView и заполнить новую строку данными
+
+                // После того, как вы заполните новую строку данными, вставьте её в Excel
+                for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                {
+                    worksheet.Cells[nextRow, i + 1].Value = newDataGridViewRow.Cells[i].Value;
+                }
+
+                // Сохраните изменения в файле Excel
+                excelPackage.Save();
+
+                MessageBox.Show("Новая строка добавлена в файл Excel.");
+            }
+            else
+            {
+                MessageBox.Show("Файл Excel не загружен.");
+            }
+
+        }
+    }
 }
