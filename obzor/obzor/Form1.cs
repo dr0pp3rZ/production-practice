@@ -25,7 +25,7 @@ namespace obzor
         {
             InitializeComponent();
 
-            // Инициализация materialSkinManager
+            // Èíèöèàëèçàöèÿ materialSkinManager
             materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
@@ -39,7 +39,7 @@ namespace obzor
         {
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void îòêðûòüToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -55,12 +55,12 @@ namespace obzor
                 }
                 else
                 {
-                    throw new Exception("Файл не выбран!");
+                    throw new Exception("Ôàéë íå âûáðàí!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Îøèáêà!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -244,37 +244,37 @@ namespace obzor
         {
             try
             {
-                // Завершаем редактирование ячейки и применяем все изменения
+                // Çàâåðøàåì ðåäàêòèðîâàíèå ÿ÷åéêè è ïðèìåíÿåì âñå èçìåíåíèÿ
                 dataGridView1.EndEdit();
 
-                // Получаем DataTable из источника данных DataGridView
+                // Ïîëó÷àåì DataTable èç èñòî÷íèêà äàííûõ DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
                 if (!string.IsNullOrEmpty(fileName))
                 {
-                    // Создаем экземпляр класса для работы с Excel
+                    // Ñîçäàåì ýêçåìïëÿð êëàññà äëÿ ðàáîòû ñ Excel
                     using (XLWorkbook workbook = new XLWorkbook())
                     {
-                        // Создаем новый лист в Excel
+                        // Ñîçäàåì íîâûé ëèñò â Excel
                         var worksheet = workbook.Worksheets.Add("Sheet1");
 
-                        // Заполняем лист данными из DataTable
+                        // Çàïîëíÿåì ëèñò äàííûìè èç DataTable
                         worksheet.Cell(1, 1).InsertTable(table);
 
-                        // Сохраняем Excel-файл в тот же самый файл
+                        // Ñîõðàíÿåì Excel-ôàéë â òîò æå ñàìûé ôàéë
                         workbook.SaveAs(fileName);
 
-                        MessageBox.Show("Данные сохранены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Äàííûå ñîõðàíåíû óñïåøíî.", "Óñïåõ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Файл не был открыт. Выберите файл перед сохранением.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Ôàéë íå áûë îòêðûò. Âûáåðèòå ôàéë ïåðåä ñîõðàíåíèåì.", "Ïðåäóïðåæäåíèå", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при сохранении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Îøèáêà ïðè ñîõðàíåíèè äàííûõ: " + ex.Message, "Îøèáêà", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -282,16 +282,16 @@ namespace obzor
         {
             try
             {
-                // Завершаем редактирование ячейки и применяем все изменения
+                // Çàâåðøàåì ðåäàêòèðîâàíèå ÿ÷åéêè è ïðèìåíÿåì âñå èçìåíåíèÿ
                 dataGridView1.EndEdit();
 
-                // Получаем DataTable из источника данных DataGridView
+                // Ïîëó÷àåì DataTable èç èñòî÷íèêà äàííûõ DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
-                // Создаем новый DataTable с той же структурой
+                // Ñîçäàåì íîâûé DataTable ñ òîé æå ñòðóêòóðîé
                 DataTable newTable = table.Clone();
 
-                // Копируем данные из DataGridView в новый DataTable
+                // Êîïèðóåì äàííûå èç DataGridView â íîâûé DataTable
                 foreach (DataGridViewRow row in dataGridView1.Rows)
                 {
                     DataRow newRow = newTable.NewRow();
@@ -302,18 +302,18 @@ namespace obzor
                     newTable.Rows.Add(newRow);
                 }
 
-                // Заменяем старый DataTable новым DataTable
+                // Çàìåíÿåì ñòàðûé DataTable íîâûì DataTable
                 table.Clear();
                 foreach (DataRow row in newTable.Rows)
                 {
                     table.ImportRow(row);
                 }
 
-                MessageBox.Show("Данные обновлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Äàííûå îáíîâëåíû óñïåøíî.", "Óñïåõ", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при обновлении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Îøèáêà ïðè îáíîâëåíèè äàííûõ: " + ex.Message, "Îøèáêà", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
