@@ -4,10 +4,13 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Учет_договоров_страхования
 {
@@ -17,7 +20,15 @@ namespace Учет_договоров_страхования
         {
             InitializeComponent();
         }
-
+        private string _path;
+        
+ 
+        
+        BackgroundWorker bw = new BackgroundWorker
+        {
+            WorkerReportsProgress = true,
+            WorkerSupportsCancellation = true
+        };
         private void Form1_Load(object sender, EventArgs e)
         {
             FillClient();
@@ -471,6 +482,86 @@ namespace Учет_договоров_страхования
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             Application.Exit();
+        }
+
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void dataGridViewClient_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog od = new OpenFileDialog();
+            od.Filter = "Excell|*.xls;*.xlsx;";
+            od.FileName = "sd_tickets.xlsx";
+            DialogResult dr = od.ShowDialog();
+            if (dr == DialogResult.Abort)
+                return;
+            if (dr == DialogResult.Cancel)
+                return;
+            textBox1.Text = od.FileName.ToString();
+            button2.Visible = true;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            button2.Visible = false;
+            _path = textBox1.Text;
+            if (textBox1.Text == "" || !textBox1.Text.Contains("sd_tickets.xlsx"))
+            {
+                MessageBox.Show("Please Browse sd_tickets.xlsx to upload", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                textBox1.Text = "";
+                button2.Visible = false;
+                return;
+            }
+            if (bw.IsBusy)
+            {
+                return;
+            }
+
+            System.Diagnostics.Stopwatch sWatch = new System.Diagnostics.Stopwatch();
+            bw.DoWork += (bwSender, bwArg) =>
+            {
+                //what happens here must not touch the form
+                //as it's in a different thread
+                sWatch.Start();
+             
+            };
+
+            bw.ProgressChanged += (bwSender, bwArg) =>
+            {
+                //update progress bars here
+            };
+
+            bw.RunWorkerCompleted += (bwSender, bwArg) =>
+            {
+                //now you're back in the UI thread you can update the form
+                //remember to dispose of bw now
+
+                sWatch.Stop();
+
+                //work is done, no need for the stop button now...
+
+                textBox1.Text = "";
+                button1.Enabled = true;
+                
+                bw.Dispose();
+            };
+
+            //lets allow the user to click stop
+
+          
+            button1.Enabled = false;
+
+            //Starts the actual work - triggerrs the "DoWork" event
+            bw.RunWorkerAsync();
+
+            //InsertExcelRecords();
         }
     }
 }
