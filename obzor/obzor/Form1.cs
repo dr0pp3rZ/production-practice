@@ -317,7 +317,7 @@ namespace obzor
             }
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ОткрытьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -343,7 +343,7 @@ namespace obzor
 
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void открытьToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             try
             {
@@ -366,7 +366,6 @@ namespace obzor
             {
                 MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
     }
 }
