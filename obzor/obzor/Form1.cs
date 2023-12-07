@@ -1,31 +1,25 @@
-using System;
-using System.Data;
-using System.Drawing.Text;
-using System.IO;
-using System.Windows.Forms;
-using ExcelDataReader;
 using ClosedXML.Excel;
-using OfficeOpenXml;
-using DocumentFormat.OpenXml.Spreadsheet;
-using MaterialSkin.Controls;
+using DocumentFormat.OpenXml.Drawing;
+using ExcelDataReader;
 using MaterialSkin;
+using MaterialSkin.Controls;
+using System.Data;
+using ColorScheme = MaterialSkin.ColorScheme;
 
 namespace obzor
 {
     public partial class Form1 : MaterialForm
     {
-        private string fileName = string.Empty;
-        private DataTableCollection tableCollection = null;
-        private DataTable originalDataTable;
-        private ExcelPackage excelPackage;
-        private ExcelWorksheet worksheet;
-        private readonly MaterialSkinManager materialSkinManager;
+        private string fileName = string.Empty; // Переменная для хранения пути к файлу
+        private DataTableCollection tableCollection = null; // Коллекция таблиц из Excel
+        private DataTable originalDataTable; // Исходная таблица для хранения оригинальных данных
+        private readonly MaterialSkinManager materialSkinManager; // Менеджер MaterialSkin
 
         public Form1()
         {
             InitializeComponent();
 
-            // Èíèöèàëèçàöèÿ materialSkinManager
+            // Инициализация MaterialSkinManager
             materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
@@ -35,35 +29,7 @@ namespace obzor
             );
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-        }
-
-        private void îòêðûòüToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                DialogResult res = openFileDialog1.ShowDialog();
-
-                if (res == DialogResult.OK)
-                {
-                    fileName = openFileDialog1.FileName;
-
-                    Text = fileName;
-
-                    OpenExcelFile(fileName);
-                }
-                else
-                {
-                    throw new Exception("Ôàéë íå âûáðàí!");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Îøèáêà!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
+        // Метод для открытия файла Excel
         private void OpenExcelFile(string path)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -71,7 +37,7 @@ namespace obzor
 
             IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream);
 
-            DataSet db = reader.AsDataSet(new ExcelDataSetConfiguration()
+            DataSet dataSet = reader.AsDataSet(new ExcelDataSetConfiguration()
             {
                 ConfigureDataTable = (x) => new ExcelDataTableConfiguration()
                 {
@@ -79,10 +45,11 @@ namespace obzor
                 }
             });
 
-            tableCollection = db.Tables;
+            tableCollection = dataSet.Tables;
 
             toolStripComboBox1.Items.Clear();
 
+            // Заполнение выпадающего списка названиями листов Excel
             foreach (DataTable table in tableCollection)
             {
                 toolStripComboBox1.Items.Add(table.TableName);
@@ -91,6 +58,7 @@ namespace obzor
             toolStripComboBox1.SelectedIndex = 0;
         }
 
+        // Обработчик выбора листа из выпадающего списка
         private void toolStripComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             DataTable table = tableCollection[Convert.ToString(toolStripComboBox1.SelectedItem)];
@@ -98,46 +66,102 @@ namespace obzor
             dataGridView1.DataSource = table;
         }
 
+        // Метод для загрузки данных в DataTable из DataGridView
         private void LoadDataIntoDataTable()
         {
             originalDataTable = ((DataTable)dataGridView1.DataSource).Copy();
         }
 
+        // Метод изменения состояния кнопок в режиме редактирования
+        private void UpdateButtonAvailability()
+        {
+            сохранитьToolStripMenuItem1.Enabled = !dataGridView1.ReadOnly;
+            обновитьToolStripMenuItem1.Enabled = !dataGridView1.ReadOnly;
+            открытьToolStripMenuItem.Enabled = !dataGridView1.ReadOnly;
+        }
+
+        // Обработчик нажатия на кнопку "Редактировать"
         private void toolStripMenuEditor_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(fileName))
             {
-                if (dataGridView1.ReadOnly == true)
+                UpdateButtonAvailability();
+                if (dataGridView1.ReadOnly)
                 {
                     dataGridView1.ReadOnly = false;
                     toolStripMenuEditor.Text = "Сохранить изм. в реж. редактирования";
                 }
                 else
                 {
-                    DialogResult result = MessageBox.Show("Вы уверены, что хотите сохранить внесенные изменения?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
+                    try
                     {
-                        dataGridView1.ReadOnly = true;
-                        toolStripMenuEditor.Text = "Редактировать";
-                        LoadDataIntoDataTable();
-                    }
-                    else
-                    {
-                        if (originalDataTable != null)
+                        if (!HasDataGridViewErrors(out int errorRow, out int errorColumn))
                         {
+                            // Проверка наличия выделенной ячейки перед завершением редактирования
+                            if (dataGridView1.CurrentCell != null && dataGridView1.CurrentCell.IsInEditMode)
+                            {
+                                dataGridView1.EndEdit();
+                            }
+
                             dataGridView1.ReadOnly = true;
                             toolStripMenuEditor.Text = "Редактировать";
-                            ((DataTable)dataGridView1.DataSource).Clear();
-                            foreach (DataRow row in originalDataTable.Rows)
-                            {
-                                ((DataTable)dataGridView1.DataSource).ImportRow(row);
-                            }
+                            LoadDataIntoDataTable();
                         }
+                        else
+                        {
+                            MessageBox.Show($"Имеются ошибки в данных. Не удается сохранить изменения. " +
+                                $"Номер строки: {errorRow}, Номер столбца: {errorColumn}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        int errorRow = -1;
+                        int errorColumn = -1;
+
+                        if (dataGridView1.CurrentCell != null)
+                        {
+                            errorRow = dataGridView1.CurrentCell.RowIndex;
+                            errorColumn = dataGridView1.CurrentCell.ColumnIndex;
+                        }
+
+                        MessageBox.Show($"Имеются ошибки в данных. Не удается сохранить изменения. " +
+                            $"Номер строки: {errorRow}, " +
+                            $"Номер столбца: {errorColumn}\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
         }
-        //Добавить
+
+        // Метод проверки и вывода сообщения об ошибках
+        private bool HasDataGridViewErrors(out int errorRow, out int errorColumn)
+        {
+            bool hasErrors = false;
+            errorRow = -1;
+            errorColumn = -1;
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    if (cell.ErrorText != string.Empty)
+                    {
+                        hasErrors = true;
+                        errorRow = cell.RowIndex;
+                        errorColumn = cell.ColumnIndex;
+                        break;
+                    }
+                }
+
+                if (hasErrors)
+                {
+                    break;
+                }
+            }
+
+            return hasErrors;
+        }
+
+        // Обработчик нажатия на кнопку "Добавить"
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
 
@@ -181,6 +205,7 @@ namespace obzor
             }
         }
 
+        // Обработчик нажатия на кнопку "Удалить"
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(fileName))
@@ -198,6 +223,7 @@ namespace obzor
                         table.Rows[rowIndex][columnIndex] = DBNull.Value;
 
                         dataGridView1.Refresh();
+                        LoadDataIntoDataTable();
                     }
                     else
                     {
@@ -211,6 +237,7 @@ namespace obzor
             }
         }
 
+        // Обработчик события изменения MaterialSwitch для изменения темы формы
         private void materialSwitch1_CheckedChanged(object sender, EventArgs e)
         {
             if (materialSwitch1.Checked)
@@ -230,10 +257,10 @@ namespace obzor
                 );
             }
 
-            // Обновляем цвета ячеек в DataGridView
             UpdateDataGridViewColors();
         }
 
+        // Метод обновления цвета ячеек в DataGridView
         private void UpdateDataGridViewColors()
         {
             foreach (DataGridViewRow row in dataGridView1.Rows)
@@ -242,42 +269,31 @@ namespace obzor
                 {
                     // Обновляем цвета фона и текста ячейки
                     cell.Style.BackColor = dataGridView1.DefaultCellStyle.BackColor;
-                    cell.Style.ForeColor = dataGridView1.DefaultCellStyle.ForeColor;
+                    cell.Style.ForeColor = dataGridView1.DefaultCellStyle.ForeColor.Darken(1);
                 }
             }
         }
 
-
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-        }
-
+        // Обработчик нажатия на кнопку "Сохранить"
         private void сохранитьToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             try
             {
-                // Çàâåðøàåì ðåäàêòèðîâàíèå ÿ÷åéêè è ïðèìåíÿåì âñå èçìåíåíèÿ
                 dataGridView1.EndEdit();
 
-                // Ïîëó÷àåì DataTable èç èñòî÷íèêà äàííûõ DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
                 if (!string.IsNullOrEmpty(fileName))
                 {
-                    // Ñîçäàåì ýêçåìïëÿð êëàññà äëÿ ðàáîòû ñ Excel
                     using (XLWorkbook workbook = new XLWorkbook())
                     {
-                        // Ñîçäàåì íîâûé ëèñò â Excel
-                        var worksheet = workbook.Worksheets.Add("Sheet1");
+                        var worksheet = workbook.Worksheets.Add("Лист1");
 
-                        // Çàïîëíÿåì ëèñò äàííûìè èç DataTable
                         worksheet.Cell(1, 1).InsertTable(table);
 
-                        // Ñîõðàíÿåì Excel-ôàéë â òîò æå ñàìûé ôàéë
                         workbook.SaveAs(fileName);
 
-                        MessageBox.Show("Данные сохранены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Данные успешно сохранены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
@@ -291,51 +307,38 @@ namespace obzor
             }
         }
 
+        // Обработчик нажатия на кнопку "Обновить"
         private void обновитьToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             try
             {
-                // Проверяем, открыт ли файл
                 if (string.IsNullOrEmpty(fileName))
                 {
                     MessageBox.Show("Файл не открыт. Откройте файл перед обновлением данных.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Завершаем редактирование DataGridView
                 dataGridView1.EndEdit();
 
-                // Извлекаем DataTable из источника данных DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
-                // Проверяем, что исходная таблица не равна null
                 if (table != null)
                 {
-                    // Создаем новый DataTable с теми же столбцами
                     DataTable newTable = table.Clone();
 
-           
-                    // Копируем данные из DataGridView в новый DataTable
+
                     foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
                         DataRow newRow = newTable.NewRow();
                         for (int i = 0; i < dataGridView1.Columns.Count; i++)
                         {
-                            // Проверяем, что значение не является null, прежде чем добавить его в новую таблицу
                             if (row.Cells[i].Value != null)
                             {
                                 newRow[i] = row.Cells[i].Value;
                             }
-                            else
-                            {
-                                // Здесь можно установить какое-то значение по умолчанию или обработать ситуацию, когда значение null
-                                // newRow[i] = DBNull.Value; // или newRow[i] = DateTime.Now; // Например, установка текущей даты
-                            }
                         }
                         newTable.Rows.Add(newRow);
                     }
-
-
 
                     // Очищаем исходный DataTable и импортируем данные из нового DataTable
                     table.Clear();
@@ -357,7 +360,7 @@ namespace obzor
             }
         }
 
-
+        // Обработчик нажатия на кнопку "Загрузить"
         private void открытьToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             try
@@ -380,6 +383,34 @@ namespace obzor
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            // Получить информацию об ошибке
+            string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
+            string cellText = string.Empty;
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && e.RowIndex < dataGridView1.Rows.Count)
+            {
+                cellText = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() ?? string.Empty;
+            }
+
+            // Выполнить необходимые действия для устранения ошибки
+            if (e.Exception is FormatException)
+            {
+                // Формат данных не соответствует ожидаемому формату
+                MessageBox.Show($"Значение в столбце \"{columnName}\" должно быть типа {dataGridView1.Columns[e.ColumnIndex].ValueType?.Name}");
+            }
+            else if (e.Exception is ConstraintException)
+            {
+                // Значение данных не соответствует ограничениям
+                MessageBox.Show($"Значение в столбце \"{columnName}\" должно удовлетворять условию {e.Exception.Message}");
+            }
+            else
+            {
+                // Ошибка, которую необходимо обработать по умолчанию
+                MessageBox.Show($"Ошибка в столбце \"{columnName}\". Значение: {cellText}. Тип ошибки: {e.Exception?.GetType()?.Name}");
             }
         }
     }

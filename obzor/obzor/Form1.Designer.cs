@@ -64,6 +64,7 @@ namespace obzor
             dataGridView1.RowTemplate.Height = 25;
             dataGridView1.Size = new Size(999, 606);
             dataGridView1.TabIndex = 4;
+            dataGridView1.DataError += dataGridView1_DataError;
             // 
             // menuStrip1
             // 
@@ -75,7 +76,6 @@ namespace obzor
             menuStrip1.Size = new Size(999, 30);
             menuStrip1.TabIndex = 5;
             menuStrip1.Text = "menuStrip1";
-            menuStrip1.ItemClicked += menuStrip1_ItemClicked;
             // 
             // файлToolStripMenuItem
             // 
@@ -87,7 +87,7 @@ namespace obzor
             // открытьToolStripMenuItem
             // 
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            открытьToolStripMenuItem.Size = new Size(160, 26);
+            открытьToolStripMenuItem.Size = new Size(224, 26);
             открытьToolStripMenuItem.Text = "Загрузить";
             открытьToolStripMenuItem.Click += открытьToolStripMenuItem_Click_1;
             // 
@@ -204,7 +204,6 @@ namespace obzor
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Excel Editor";
-            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
