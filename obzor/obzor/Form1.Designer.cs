@@ -87,7 +87,7 @@ namespace obzor
             // открытьToolStripMenuItem
             // 
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            открытьToolStripMenuItem.Size = new Size(224, 26);
+            открытьToolStripMenuItem.Size = new Size(160, 26);
             открытьToolStripMenuItem.Text = "Загрузить";
             открытьToolStripMenuItem.Click += открытьToolStripMenuItem_Click_1;
             // 
@@ -101,8 +101,8 @@ namespace obzor
             // toolStripMenuEditor
             // 
             toolStripMenuEditor.Name = "toolStripMenuEditor";
-            toolStripMenuEditor.Size = new Size(92, 24);
-            toolStripMenuEditor.Text = "Изменить";
+            toolStripMenuEditor.Size = new Size(125, 24);
+            toolStripMenuEditor.Text = "Редактировать";
             toolStripMenuEditor.Click += toolStripMenuEditor_Click;
             // 
             // toolStripMenuItem3

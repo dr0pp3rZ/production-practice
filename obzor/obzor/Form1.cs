@@ -16,7 +16,7 @@ namespace obzor
     {
         private string fileName = string.Empty;
         private DataTableCollection tableCollection = null;
-        private DataTable originalDataTable; // Исходная таблица для хранения оригинальных данных
+        private DataTable originalDataTable;
         private ExcelPackage excelPackage;
         private ExcelWorksheet worksheet;
         private readonly MaterialSkinManager materialSkinManager;
@@ -105,32 +105,36 @@ namespace obzor
 
         private void toolStripMenuEditor_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.ReadOnly == true)
+            if (!string.IsNullOrEmpty(fileName))
             {
-                dataGridView1.ReadOnly = false;
-                toolStripMenuEditor.Text = "Сохранить изм. в реж. редактирования";
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show("Вы уверены, что хотите сохранить внесенные изменения?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
+                if (dataGridView1.ReadOnly == true)
                 {
-                    LoadDataIntoDataTable();
+                    dataGridView1.ReadOnly = false;
+                    toolStripMenuEditor.Text = "Сохранить изм. в реж. редактирования";
                 }
                 else
                 {
-                    if (originalDataTable != null)
+                    DialogResult result = MessageBox.Show("Вы уверены, что хотите сохранить внесенные изменения?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
                     {
-                        ((DataTable)dataGridView1.DataSource).Clear();
-                        foreach (DataRow row in originalDataTable.Rows)
+                        dataGridView1.ReadOnly = true;
+                        toolStripMenuEditor.Text = "Редактировать";
+                        LoadDataIntoDataTable();
+                    }
+                    else
+                    {
+                        if (originalDataTable != null)
                         {
-                            ((DataTable)dataGridView1.DataSource).ImportRow(row);
+                            dataGridView1.ReadOnly = true;
+                            toolStripMenuEditor.Text = "Редактировать";
+                            ((DataTable)dataGridView1.DataSource).Clear();
+                            foreach (DataRow row in originalDataTable.Rows)
+                            {
+                                ((DataTable)dataGridView1.DataSource).ImportRow(row);
+                            }
                         }
                     }
                 }
-
-                dataGridView1.ReadOnly = true;
-                toolStripMenuEditor.Text = "Редактировать";
             }
         }
 
@@ -191,28 +195,31 @@ namespace obzor
 
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
         {
-            try
+            if (!string.IsNullOrEmpty(fileName))
             {
-                DataGridViewSelectedCellCollection selectedCells = dataGridView1.SelectedCells;
-
-                if (selectedCells.Count > 0)
+                try
                 {
-                    int rowIndex = selectedCells[0].RowIndex;
-                    int columnIndex = selectedCells[0].ColumnIndex;
+                    DataGridViewSelectedCellCollection selectedCells = dataGridView1.SelectedCells;
 
-                    DataTable table = (DataTable)dataGridView1.DataSource;
-                    table.Rows[rowIndex][columnIndex] = DBNull.Value;
+                    if (selectedCells.Count > 0)
+                    {
+                        int rowIndex = selectedCells[0].RowIndex;
+                        int columnIndex = selectedCells[0].ColumnIndex;
 
-                    dataGridView1.Refresh();
+                        DataTable table = (DataTable)dataGridView1.DataSource;
+                        table.Rows[rowIndex][columnIndex] = DBNull.Value;
+
+                        dataGridView1.Refresh();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Выберите ячейку для очистки.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Выберите ячейку для очистки.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Ошибка при очистке ячейки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при очистке ячейки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -317,7 +324,7 @@ namespace obzor
             }
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void открытьToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             try
             {
@@ -340,33 +347,6 @@ namespace obzor
             {
                 MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-        }
-
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                DialogResult res = openFileDialog1.ShowDialog();
-
-                if (res == DialogResult.OK)
-                {
-                    fileName = openFileDialog1.FileName;
-
-                    Text = fileName;
-
-                    OpenExcelFile(fileName);
-                }
-                else
-                {
-                    throw new Exception("Файл не выбран!");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
         }
     }
 }
