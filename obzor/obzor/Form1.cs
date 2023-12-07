@@ -308,34 +308,55 @@ namespace obzor
                 // Извлекаем DataTable из источника данных DataGridView
                 DataTable table = (DataTable)dataGridView1.DataSource;
 
-                // Создаем новый DataTable с теми же столбцами
-                DataTable newTable = table.Clone();
-
-                // Копируем данные из DataGridView в новый DataTable
-                foreach (DataGridViewRow row in dataGridView1.Rows)
+                // Проверяем, что исходная таблица не равна null
+                if (table != null)
                 {
-                    DataRow newRow = newTable.NewRow();
-                    for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                    // Создаем новый DataTable с теми же столбцами
+                    DataTable newTable = table.Clone();
+
+           
+                    // Копируем данные из DataGridView в новый DataTable
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        newRow[i] = row.Cells[i].Value;
+                        DataRow newRow = newTable.NewRow();
+                        for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                        {
+                            // Проверяем, что значение не является null, прежде чем добавить его в новую таблицу
+                            if (row.Cells[i].Value != null)
+                            {
+                                newRow[i] = row.Cells[i].Value;
+                            }
+                            else
+                            {
+                                // Здесь можно установить какое-то значение по умолчанию или обработать ситуацию, когда значение null
+                                // newRow[i] = DBNull.Value; // или newRow[i] = DateTime.Now; // Например, установка текущей даты
+                            }
+                        }
+                        newTable.Rows.Add(newRow);
                     }
-                    newTable.Rows.Add(newRow);
-                }
 
-                // Очищаем исходный DataTable и импортируем данные из нового DataTable
-                table.Clear();
-                foreach (DataRow row in newTable.Rows)
+
+
+                    // Очищаем исходный DataTable и импортируем данные из нового DataTable
+                    table.Clear();
+                    foreach (DataRow row in newTable.Rows)
+                    {
+                        table.ImportRow(row);
+                    }
+
+                    MessageBox.Show("Данные обновлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
                 {
-                    table.ImportRow(row);
+                    MessageBox.Show("Исходная таблица равна null. Проверьте, что DataGridView связан с DataTable.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                MessageBox.Show("Данные обновлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при обновлении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void открытьToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
