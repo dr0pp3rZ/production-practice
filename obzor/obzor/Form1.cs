@@ -133,60 +133,48 @@ namespace obzor
                 toolStripMenuEditor.Text = "Редактировать";
             }
         }
-
+        //Добавить
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
+
             try
             {
                 dataGridView1.EndEdit();
 
-                DataTable table = (DataTable)dataGridView1.DataSource;
+                DataTable sourceTable = dataGridView1.DataSource as DataTable;
 
-                DataTable newTable = table.Clone();
-
-                foreach (DataGridViewRow row in dataGridView1.Rows)
+                if (sourceTable != null)
                 {
-                    DataRow newRow = newTable.NewRow();
-                    for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                    DataTable newTable = sourceTable.Clone();
+
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        newRow[i] = row.Cells[i].Value;
+                        DataRow newRow = newTable.NewRow();
+                        for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                        {
+                            object cellValue = row.Cells[i].Value;
+                            newRow[i] = cellValue != null ? cellValue : DBNull.Value;
+                        }
+                        newTable.Rows.Add(newRow);
                     }
-                    newTable.Rows.Add(newRow);
-                }
 
-                table.Clear();
-                foreach (DataRow row in newTable.Rows)
+                    sourceTable.Clear();
+                    foreach (DataRow row in newTable.Rows)
+                    {
+                        sourceTable.ImportRow(row);
+                    }
+
+                    MessageBox.Show("Строки добавлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
                 {
-                    table.ImportRow(row);
+                    MessageBox.Show("Исходная таблица не инициализирована.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                MessageBox.Show("Строки добавлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при добавлении строк: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            //if (excelPackage != null && worksheet != null)
-            //{
-            //    int nextRow = worksheet.Dimension.End.Row + 1;
-
-            //    DataGridViewRow newDataGridViewRow = new DataGridViewRow();
-            //    newDataGridViewRow.CreateCells(dataGridView1);
-
-            //    for (int i = 0; i < dataGridView1.Columns.Count; i++)
-            //    {
-            //        worksheet.Cells[nextRow, i + 1].Value = newDataGridViewRow.Cells[i].Value;
-            //    }
-
-            //    excelPackage.Save();
-
-            //    MessageBox.Show("Новая строка добавлена в файл Excel.");
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Файл Excel не загружен.");
-            //}
         }
 
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
