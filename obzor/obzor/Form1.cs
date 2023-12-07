@@ -234,7 +234,25 @@ namespace obzor
                     Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE
                 );
             }
+
+            // Обновляем цвета ячеек в DataGridView
+            UpdateDataGridViewColors();
         }
+
+        private void UpdateDataGridViewColors()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    // Обновляем цвета фона и текста ячейки
+                    cell.Style.BackColor = dataGridView1.DefaultCellStyle.BackColor;
+                    cell.Style.ForeColor = dataGridView1.DefaultCellStyle.ForeColor;
+                }
+            }
+        }
+
+
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
