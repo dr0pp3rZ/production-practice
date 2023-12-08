@@ -155,6 +155,7 @@ namespace obzor
             // 
             // toolStripComboBox1
             // 
+            toolStripComboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             toolStripComboBox1.Name = "toolStripComboBox1";
             toolStripComboBox1.Size = new Size(138, 28);
             toolStripComboBox1.SelectedIndexChanged += toolStripComboBox1_SelectedIndexChanged;

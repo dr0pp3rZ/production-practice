@@ -1,5 +1,4 @@
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Drawing;
 using ExcelDataReader;
 using MaterialSkin;
 using MaterialSkin.Controls;
@@ -75,128 +74,80 @@ namespace obzor
         // Метод изменения состояния кнопок в режиме редактирования
         private void UpdateButtonAvailability()
         {
-            сохранитьToolStripMenuItem1.Enabled = !dataGridView1.ReadOnly;
-            обновитьToolStripMenuItem1.Enabled = !dataGridView1.ReadOnly;
-            открытьToolStripMenuItem.Enabled = !dataGridView1.ReadOnly;
+            сохранитьToolStripMenuItem1.Enabled = dataGridView1.ReadOnly;
+            обновитьToolStripMenuItem1.Enabled = dataGridView1.ReadOnly;
+            открытьToolStripMenuItem.Enabled = dataGridView1.ReadOnly;
+
+            if (dataGridView1.ReadOnly)
+            {
+                toolStripMenuEditor.Text = "Редактировать";
+            }
+            else
+            {
+                toolStripMenuEditor.Text = "Выйти из режима редактирования";
+                LoadDataIntoDataTable();
+            }
         }
 
         // Обработчик нажатия на кнопку "Редактировать"
         private void toolStripMenuEditor_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(fileName))
+            try
             {
-                UpdateButtonAvailability();
-                if (dataGridView1.ReadOnly)
+                if (!string.IsNullOrEmpty(fileName))
                 {
-                    dataGridView1.ReadOnly = false;
-                    toolStripMenuEditor.Text = "Сохранить изм. в реж. редактирования";
+                    dataGridView1.ReadOnly = !dataGridView1.ReadOnly;
+                    UpdateButtonAvailability();
                 }
                 else
                 {
-                    try
-                    {
-                        if (!HasDataGridViewErrors(out int errorRow, out int errorColumn))
-                        {
-                            // Проверка наличия выделенной ячейки перед завершением редактирования
-                            if (dataGridView1.CurrentCell != null && dataGridView1.CurrentCell.IsInEditMode)
-                            {
-                                dataGridView1.EndEdit();
-                            }
-
-                            dataGridView1.ReadOnly = true;
-                            toolStripMenuEditor.Text = "Редактировать";
-                            LoadDataIntoDataTable();
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Имеются ошибки в данных. Не удается сохранить изменения. " +
-                                $"Номер строки: {errorRow}, Номер столбца: {errorColumn}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        int errorRow = -1;
-                        int errorColumn = -1;
-
-                        if (dataGridView1.CurrentCell != null)
-                        {
-                            errorRow = dataGridView1.CurrentCell.RowIndex;
-                            errorColumn = dataGridView1.CurrentCell.ColumnIndex;
-                        }
-
-                        MessageBox.Show($"Имеются ошибки в данных. Не удается сохранить изменения. " +
-                            $"Номер строки: {errorRow}, " +
-                            $"Номер столбца: {errorColumn}\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("Файл не был открыт. Выберите файл перед редактированием.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
-        }
-
-        // Метод проверки и вывода сообщения об ошибках
-        private bool HasDataGridViewErrors(out int errorRow, out int errorColumn)
-        {
-            bool hasErrors = false;
-            errorRow = -1;
-            errorColumn = -1;
-
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            catch (InvalidOperationException ex)
             {
-                foreach (DataGridViewCell cell in row.Cells)
-                {
-                    if (cell.ErrorText != string.Empty)
-                    {
-                        hasErrors = true;
-                        errorRow = cell.RowIndex;
-                        errorColumn = cell.ColumnIndex;
-                        break;
-                    }
-                }
 
-                if (hasErrors)
-                {
-                    break;
-                }
             }
-
-            return hasErrors;
         }
 
         // Обработчик нажатия на кнопку "Добавить"
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-
             try
             {
-                dataGridView1.EndEdit();
-
                 DataTable sourceTable = dataGridView1.DataSource as DataTable;
-
-                if (sourceTable != null)
+                if (HasErrors())
                 {
-                    DataTable newTable = sourceTable.Clone();
-
-                    foreach (DataGridViewRow row in dataGridView1.Rows)
-                    {
-                        DataRow newRow = newTable.NewRow();
-                        for (int i = 0; i < dataGridView1.Columns.Count; i++)
-                        {
-                            object cellValue = row.Cells[i].Value;
-                            newRow[i] = cellValue != null ? cellValue : DBNull.Value;
-                        }
-                        newTable.Rows.Add(newRow);
-                    }
-
-                    sourceTable.Clear();
-                    foreach (DataRow row in newTable.Rows)
-                    {
-                        sourceTable.ImportRow(row);
-                    }
-
-                    MessageBox.Show("Строки добавлены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    dataGridView1.EndEdit();
+                    return;
                 }
                 else
                 {
-                    MessageBox.Show("Исходная таблица не инициализирована.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (sourceTable != null)
+                    {
+                        DataTable newTable = sourceTable.Clone();
+
+                        foreach (DataGridViewRow row in dataGridView1.Rows)
+                        {
+                            DataRow newRow = newTable.NewRow();
+                            for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                            {
+                                object cellValue = row.Cells[i].Value;
+                                newRow[i] = cellValue != null ? cellValue : DBNull.Value;
+                            }
+                            newTable.Rows.Add(newRow);
+                        }
+
+                        sourceTable.Clear();
+                        foreach (DataRow row in newTable.Rows)
+                        {
+                            sourceTable.ImportRow(row);
+                        }
+
+                        MessageBox.Show("Строки успешно добавлены в конец таблицы.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                        MessageBox.Show("Файл не был открыт. Выберите файл перед добавлением данных.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
@@ -235,6 +186,8 @@ namespace obzor
                     MessageBox.Show("Ошибка при очистке ячейки: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            else
+                MessageBox.Show("Файл не был открыт. Выберите файл перед удалением данных.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         // Обработчик события изменения MaterialSwitch для изменения темы формы
@@ -359,6 +312,34 @@ namespace obzor
                 MessageBox.Show("Ошибка при обновлении данных: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void SaveChangesToFile()
+        {
+            if (originalDataTable != null && !originalDataTable.Equals(((DataTable)dataGridView1.DataSource)))
+            {
+                DialogResult result = MessageBox.Show("Есть несохраненные изменения. Хотите сохранить их?", "Предупреждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        using (XLWorkbook workbook = new XLWorkbook())
+                        {
+                            var worksheet = workbook.Worksheets.Add("Лист1");
+
+                            worksheet.Cell(1, 1).InsertTable((DataTable)dataGridView1.DataSource);
+
+                            workbook.SaveAs(fileName);
+
+                            MessageBox.Show("Изменения сохранены успешно.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Ошибка при сохранении изменений: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
 
         // Обработчик нажатия на кнопку "Загрузить"
         private void открытьToolStripMenuItem_Click_1(object sender, EventArgs e)
@@ -369,15 +350,24 @@ namespace obzor
 
                 if (res == DialogResult.OK)
                 {
-                    fileName = openFileDialog1.FileName;
+                    string newFileName = openFileDialog1.FileName;
 
-                    Text = fileName;
+                    if (!string.Equals(newFileName, fileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!string.IsNullOrEmpty(fileName) && dataGridView1.DataSource != null)
+                        {
+                            SaveChangesToFile();
+                        }
 
-                    OpenExcelFile(fileName);
-                }
-                else
-                {
-                    throw new Exception("Файл не выбран!");
+                        fileName = newFileName;
+                        Text = fileName;
+
+                        OpenExcelFile(fileName);
+                    }
+                    else
+                    {
+                        throw new Exception("Файл не выбран!");
+                    }
                 }
             }
             catch (Exception ex)
@@ -386,32 +376,33 @@ namespace obzor
             }
         }
 
+        // Метод проверки наличия ошибок в ячейках
+        private bool HasErrors()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    if (cell.ErrorText != null && cell.ErrorText.Trim() != "")
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Метод обработки ошибок, вызванных неправильно внесёнными данными в ячейки таблицы
         private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            // Получить информацию об ошибке
-            string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
-            string cellText = string.Empty;
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && e.RowIndex < dataGridView1.Rows.Count)
-            {
-                cellText = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString() ?? string.Empty;
-            }
+            DataGridViewCell errorCell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            errorCell.ErrorText = "Ошибка в ячейке";
 
-            // Выполнить необходимые действия для устранения ошибки
-            if (e.Exception is FormatException)
-            {
-                // Формат данных не соответствует ожидаемому формату
-                MessageBox.Show($"Значение в столбце \"{columnName}\" должно быть типа {dataGridView1.Columns[e.ColumnIndex].ValueType?.Name}");
-            }
-            else if (e.Exception is ConstraintException)
-            {
-                // Значение данных не соответствует ограничениям
-                MessageBox.Show($"Значение в столбце \"{columnName}\" должно удовлетворять условию {e.Exception.Message}");
-            }
-            else
-            {
-                // Ошибка, которую необходимо обработать по умолчанию
-                MessageBox.Show($"Ошибка в столбце \"{columnName}\". Значение: {cellText}. Тип ошибки: {e.Exception?.GetType()?.Name}");
-            }
+            int displayedRow = e.RowIndex + 1;
+            int displayedColumn = e.ColumnIndex + 1;
+
+            MessageBox.Show($"Ошибка в ячейке. Номер строки: {displayedRow}, Номер столбца: {displayedColumn}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            e.ThrowException = false;
         }
     }
 }
