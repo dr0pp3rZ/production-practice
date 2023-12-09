@@ -1,5 +1,4 @@
-﻿
-namespace obzor
+﻿namespace obzor
 {
     partial class Form1
     {
@@ -56,7 +55,8 @@ namespace obzor
             // 
             // dataGridView1
             // 
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.ColumnHeader;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.BorderStyle = BorderStyle.None;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.Location = new Point(0, 0);
@@ -66,7 +66,7 @@ namespace obzor
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.RowTemplate.Height = 25;
-            dataGridView1.Size = new Size(999, 606);
+            dataGridView1.Size = new Size(999, 614);
             dataGridView1.TabIndex = 4;
             dataGridView1.DataError += DataGridView1_DataError;
             // 
@@ -77,7 +77,7 @@ namespace obzor
             menuStrip1.Location = new Point(3, 64);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
-            menuStrip1.Size = new Size(999, 30);
+            menuStrip1.Size = new Size(999, 25);
             menuStrip1.TabIndex = 5;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -85,62 +85,63 @@ namespace obzor
             // 
             файлToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { открытьToolStripMenuItem, сохранитьToolStripMenuItem2, сохранитьКакToolStripMenuItem });
             файлToolStripMenuItem.Name = "файлToolStripMenuItem";
-            файлToolStripMenuItem.Size = new Size(59, 24);
+            файлToolStripMenuItem.Size = new Size(48, 19);
             файлToolStripMenuItem.Text = "Файл";
             // 
             // открытьToolStripMenuItem
             // 
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            открытьToolStripMenuItem.Size = new Size(201, 26);
+            открытьToolStripMenuItem.Size = new Size(163, 22);
             открытьToolStripMenuItem.Text = "Загрузить";
             открытьToolStripMenuItem.Click += ОткрытьToolStripMenuItem_Click_1;
             // 
             // сохранитьToolStripMenuItem2
             // 
             сохранитьToolStripMenuItem2.Name = "сохранитьToolStripMenuItem2";
-            сохранитьToolStripMenuItem2.Size = new Size(201, 26);
+            сохранитьToolStripMenuItem2.Size = new Size(163, 22);
             сохранитьToolStripMenuItem2.Text = "Сохранить";
             сохранитьToolStripMenuItem2.Click += СохранитьToolStripMenuItem2_Click;
             // 
             // сохранитьКакToolStripMenuItem
             // 
             сохранитьКакToolStripMenuItem.Name = "сохранитьКакToolStripMenuItem";
-            сохранитьКакToolStripMenuItem.Size = new Size(201, 26);
+            сохранитьКакToolStripMenuItem.Size = new Size(163, 22);
             сохранитьКакToolStripMenuItem.Text = "Сохранить как...";
             сохранитьКакToolStripMenuItem.Click += СохранитьКакToolStripMenuItem_Click;
             // 
             // toolStripMenuEditor
             // 
             toolStripMenuEditor.DropDownItems.AddRange(new ToolStripItem[] { добавитьToolStripMenuItem, редактироватьToolStripMenuItem, удалитьToolStripMenuItem, обновToolStripMenuItem });
+            toolStripMenuEditor.Enabled = false;
             toolStripMenuEditor.Name = "toolStripMenuEditor";
-            toolStripMenuEditor.Size = new Size(92, 24);
+            toolStripMenuEditor.Size = new Size(73, 19);
             toolStripMenuEditor.Text = "Изменить";
             // 
             // добавитьToolStripMenuItem
             // 
             добавитьToolStripMenuItem.Name = "добавитьToolStripMenuItem";
-            добавитьToolStripMenuItem.Size = new Size(224, 26);
+            добавитьToolStripMenuItem.Size = new Size(154, 22);
             добавитьToolStripMenuItem.Text = "Добавить";
             добавитьToolStripMenuItem.Click += ДобавитьToolStripMenuItem_Click;
             // 
             // редактироватьToolStripMenuItem
             // 
             редактироватьToolStripMenuItem.Name = "редактироватьToolStripMenuItem";
-            редактироватьToolStripMenuItem.Size = new Size(224, 26);
+            редактироватьToolStripMenuItem.Size = new Size(154, 22);
             редактироватьToolStripMenuItem.Text = "Редактировать";
             редактироватьToolStripMenuItem.Click += РедактироватьToolStripMenuItem_Click;
             // 
             // удалитьToolStripMenuItem
             // 
             удалитьToolStripMenuItem.Name = "удалитьToolStripMenuItem";
-            удалитьToolStripMenuItem.Size = new Size(224, 26);
+            удалитьToolStripMenuItem.Size = new Size(154, 22);
             удалитьToolStripMenuItem.Text = "Удалить";
             удалитьToolStripMenuItem.Click += УдалитьToolStripMenuItem_Click;
             // 
             // обновToolStripMenuItem
             // 
             обновToolStripMenuItem.Name = "обновToolStripMenuItem";
-            обновToolStripMenuItem.Size = new Size(224, 26);
+            обновToolStripMenuItem.Size = new Size(154, 22);
             обновToolStripMenuItem.Text = "Обновить";
             обновToolStripMenuItem.Click += ОбновToolStripMenuItem_Click;
             // 
@@ -157,39 +158,41 @@ namespace obzor
             // 
             // toolStrip1
             // 
+            toolStrip1.GripStyle = ToolStripGripStyle.Hidden;
             toolStrip1.ImageScalingSize = new Size(20, 20);
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, toolStripComboBox1 });
-            toolStrip1.Location = new Point(3, 94);
+            toolStrip1.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            toolStrip1.Location = new Point(3, 89);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(999, 28);
+            toolStrip1.Size = new Size(999, 25);
             toolStrip1.TabIndex = 6;
             toolStrip1.Text = "toolStrip1";
             // 
             // toolStripLabel1
             // 
             toolStripLabel1.Name = "toolStripLabel1";
-            toolStripLabel1.Size = new Size(41, 25);
+            toolStripLabel1.Size = new Size(33, 22);
             toolStripLabel1.Text = "Лист";
             // 
             // toolStripComboBox1
             // 
             toolStripComboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            toolStripComboBox1.Enabled = false;
             toolStripComboBox1.Name = "toolStripComboBox1";
-            toolStripComboBox1.Size = new Size(138, 28);
+            toolStripComboBox1.Size = new Size(121, 25);
             toolStripComboBox1.SelectedIndexChanged += ToolStripComboBox1_SelectedIndexChanged;
             // 
             // openFileDialog1
             // 
-            openFileDialog1.FileName = "openFileDialog1";
-            openFileDialog1.Filter = "Excel|*.xlsx";
+            openFileDialog1.Filter = "Excel|*.xlsx;*.xls|Access|*.accdb;*.mdb|MS SQL Server|*.mdf";
             // 
             // panel1
             // 
             panel1.Controls.Add(dataGridView1);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(3, 122);
+            panel1.Location = new Point(3, 114);
             panel1.Name = "panel1";
-            panel1.Size = new Size(999, 606);
+            panel1.Size = new Size(999, 614);
             panel1.TabIndex = 7;
             // 
             // materialSwitch1
@@ -218,11 +221,12 @@ namespace obzor
             Controls.Add(panel1);
             Controls.Add(toolStrip1);
             Controls.Add(menuStrip1);
+            Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
             MainMenuStrip = menuStrip1;
             Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Excel Editor";
+            Text = "Database Editor";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
