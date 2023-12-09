@@ -33,11 +33,13 @@ namespace obzor
             menuStrip1 = new MenuStrip();
             файлToolStripMenuItem = new ToolStripMenuItem();
             открытьToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripMenuItem();
+            сохранитьToolStripMenuItem2 = new ToolStripMenuItem();
+            сохранитьКакToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuEditor = new ToolStripMenuItem();
-            toolStripMenuItem3 = new ToolStripMenuItem();
-            сохранитьToolStripMenuItem1 = new ToolStripMenuItem();
-            обновитьToolStripMenuItem1 = new ToolStripMenuItem();
+            добавитьToolStripMenuItem = new ToolStripMenuItem();
+            редактироватьToolStripMenuItem = new ToolStripMenuItem();
+            удалитьToolStripMenuItem = new ToolStripMenuItem();
+            обновToolStripMenuItem = new ToolStripMenuItem();
             сохранитьToolStripMenuItem = new ToolStripMenuItem();
             обновитьToolStripMenuItem = new ToolStripMenuItem();
             toolStrip1 = new ToolStrip();
@@ -54,32 +56,34 @@ namespace obzor
             // 
             // dataGridView1
             // 
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.ColumnHeader;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.Location = new Point(0, 0);
             dataGridView1.Margin = new Padding(3, 4, 3, 4);
+            dataGridView1.MultiSelect = false;
             dataGridView1.Name = "dataGridView1";
             dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.RowTemplate.Height = 25;
             dataGridView1.Size = new Size(999, 606);
             dataGridView1.TabIndex = 4;
+            dataGridView1.DataError += DataGridView1_DataError;
             // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, toolStripMenuItem1, toolStripMenuEditor, toolStripMenuItem3, сохранитьToolStripMenuItem1, обновитьToolStripMenuItem1 });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, toolStripMenuEditor });
             menuStrip1.Location = new Point(3, 64);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
             menuStrip1.Size = new Size(999, 30);
             menuStrip1.TabIndex = 5;
             menuStrip1.Text = "menuStrip1";
-            menuStrip1.ItemClicked += menuStrip1_ItemClicked;
             // 
             // файлToolStripMenuItem
             // 
-            файлToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { открытьToolStripMenuItem });
+            файлToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { открытьToolStripMenuItem, сохранитьToolStripMenuItem2, сохранитьКакToolStripMenuItem });
             файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             файлToolStripMenuItem.Size = new Size(59, 24);
             файлToolStripMenuItem.Text = "Файл";
@@ -87,43 +91,58 @@ namespace obzor
             // открытьToolStripMenuItem
             // 
             открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            открытьToolStripMenuItem.Size = new Size(224, 26);
+            открытьToolStripMenuItem.Size = new Size(201, 26);
             открытьToolStripMenuItem.Text = "Загрузить";
+            открытьToolStripMenuItem.Click += ОткрытьToolStripMenuItem_Click_1;
             // 
-            // toolStripMenuItem1
+            // сохранитьToolStripMenuItem2
             // 
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(90, 24);
-            toolStripMenuItem1.Text = "Добавить";
-            toolStripMenuItem1.Click += toolStripMenuItem1_Click;
+            сохранитьToolStripMenuItem2.Name = "сохранитьToolStripMenuItem2";
+            сохранитьToolStripMenuItem2.Size = new Size(201, 26);
+            сохранитьToolStripMenuItem2.Text = "Сохранить";
+            сохранитьToolStripMenuItem2.Click += СохранитьToolStripMenuItem2_Click;
+            // 
+            // сохранитьКакToolStripMenuItem
+            // 
+            сохранитьКакToolStripMenuItem.Name = "сохранитьКакToolStripMenuItem";
+            сохранитьКакToolStripMenuItem.Size = new Size(201, 26);
+            сохранитьКакToolStripMenuItem.Text = "Сохранить как...";
+            сохранитьКакToolStripMenuItem.Click += СохранитьКакToolStripMenuItem_Click;
             // 
             // toolStripMenuEditor
             // 
+            toolStripMenuEditor.DropDownItems.AddRange(new ToolStripItem[] { добавитьToolStripMenuItem, редактироватьToolStripMenuItem, удалитьToolStripMenuItem, обновToolStripMenuItem });
             toolStripMenuEditor.Name = "toolStripMenuEditor";
             toolStripMenuEditor.Size = new Size(92, 24);
             toolStripMenuEditor.Text = "Изменить";
-            toolStripMenuEditor.Click += toolStripMenuEditor_Click;
             // 
-            // toolStripMenuItem3
+            // добавитьToolStripMenuItem
             // 
-            toolStripMenuItem3.Name = "toolStripMenuItem3";
-            toolStripMenuItem3.Size = new Size(79, 24);
-            toolStripMenuItem3.Text = "Удалить";
-            toolStripMenuItem3.Click += toolStripMenuItem3_Click;
+            добавитьToolStripMenuItem.Name = "добавитьToolStripMenuItem";
+            добавитьToolStripMenuItem.Size = new Size(224, 26);
+            добавитьToolStripMenuItem.Text = "Добавить";
+            добавитьToolStripMenuItem.Click += ДобавитьToolStripMenuItem_Click;
             // 
-            // сохранитьToolStripMenuItem1
+            // редактироватьToolStripMenuItem
             // 
-            сохранитьToolStripMenuItem1.Name = "сохранитьToolStripMenuItem1";
-            сохранитьToolStripMenuItem1.Size = new Size(97, 24);
-            сохранитьToolStripMenuItem1.Text = "Сохранить";
-            сохранитьToolStripMenuItem1.Click += сохранитьToolStripMenuItem1_Click;
+            редактироватьToolStripMenuItem.Name = "редактироватьToolStripMenuItem";
+            редактироватьToolStripMenuItem.Size = new Size(224, 26);
+            редактироватьToolStripMenuItem.Text = "Редактировать";
+            редактироватьToolStripMenuItem.Click += РедактироватьToolStripMenuItem_Click;
             // 
-            // обновитьToolStripMenuItem1
+            // удалитьToolStripMenuItem
             // 
-            обновитьToolStripMenuItem1.Name = "обновитьToolStripMenuItem1";
-            обновитьToolStripMenuItem1.Size = new Size(92, 24);
-            обновитьToolStripMenuItem1.Text = "Обновить";
-            обновитьToolStripMenuItem1.Click += обновитьToolStripMenuItem1_Click;
+            удалитьToolStripMenuItem.Name = "удалитьToolStripMenuItem";
+            удалитьToolStripMenuItem.Size = new Size(224, 26);
+            удалитьToolStripMenuItem.Text = "Удалить";
+            удалитьToolStripMenuItem.Click += УдалитьToolStripMenuItem_Click;
+            // 
+            // обновToolStripMenuItem
+            // 
+            обновToolStripMenuItem.Name = "обновToolStripMenuItem";
+            обновToolStripMenuItem.Size = new Size(224, 26);
+            обновToolStripMenuItem.Text = "Обновить";
+            обновToolStripMenuItem.Click += ОбновToolStripMenuItem_Click;
             // 
             // сохранитьToolStripMenuItem
             // 
@@ -154,9 +173,10 @@ namespace obzor
             // 
             // toolStripComboBox1
             // 
+            toolStripComboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             toolStripComboBox1.Name = "toolStripComboBox1";
             toolStripComboBox1.Size = new Size(138, 28);
-            toolStripComboBox1.SelectedIndexChanged += toolStripComboBox1_SelectedIndexChanged;
+            toolStripComboBox1.SelectedIndexChanged += ToolStripComboBox1_SelectedIndexChanged;
             // 
             // openFileDialog1
             // 
@@ -187,7 +207,7 @@ namespace obzor
             materialSwitch1.TabIndex = 7;
             materialSwitch1.Text = "Тема ";
             materialSwitch1.UseVisualStyleBackColor = false;
-            materialSwitch1.CheckedChanged += materialSwitch1_CheckedChanged;
+            materialSwitch1.CheckedChanged += MaterialSwitch1_CheckedChanged;
             // 
             // Form1
             // 
@@ -202,8 +222,7 @@ namespace obzor
             Margin = new Padding(3, 4, 3, 4);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Загрузка файла";
-            Load += Form1_Load;
+            Text = "Excel Editor";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -223,14 +242,16 @@ namespace obzor
         private ToolStripLabel toolStripLabel1;
         private ToolStripComboBox toolStripComboBox1;
         private OpenFileDialog openFileDialog1;
-        private ToolStripMenuItem toolStripMenuItem1;
         private ToolStripMenuItem toolStripMenuEditor;
-        private ToolStripMenuItem toolStripMenuItem3;
         private Panel panel1;
         private ToolStripMenuItem сохранитьToolStripMenuItem;
         private ToolStripMenuItem обновитьToolStripMenuItem;
         private MaterialSkin.Controls.MaterialSwitch materialSwitch1;
-        private ToolStripMenuItem сохранитьToolStripMenuItem1;
-        private ToolStripMenuItem обновитьToolStripMenuItem1;
+        private ToolStripMenuItem сохранитьКакToolStripMenuItem;
+        private ToolStripMenuItem сохранитьToolStripMenuItem2;
+        private ToolStripMenuItem добавитьToolStripMenuItem;
+        private ToolStripMenuItem удалитьToolStripMenuItem;
+        private ToolStripMenuItem обновToolStripMenuItem;
+        private ToolStripMenuItem редактироватьToolStripMenuItem;
     }
 }
