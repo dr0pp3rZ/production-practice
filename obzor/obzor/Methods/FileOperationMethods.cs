@@ -10,6 +10,36 @@ namespace obzor.Methods
     {
         Variables variables = new();
 
+        // Метод для открытия файла Excel
+        public void OpenExcelFile(DataGridView dataGridView1, string path, ToolStripComboBox toolStripComboBox1, ToolStripMenuItem ToolStripMenuEditor)
+        {
+            try
+            {
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                using FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read);
+                IExcelDataReader reader = ExcelReaderFactory.CreateReader(stream);
+                DataSet dataSet = reader.AsDataSet(new ExcelDataSetConfiguration { ConfigureDataTable = (_) => new ExcelDataTableConfiguration { UseHeaderRow = true } });
+                tableCollection = dataSet.Tables;
+
+                // Получение имен таблиц в виде списка
+                List<string> tableNames = new();
+                foreach (DataTable table in tableCollection)
+                {
+                    tableNames.Add(table.TableName);
+                }
+                if (tableCollection.Count > 0)
+                {
+                    dataGridView1.DataSource = tableCollection[0];
+                }
+                // Обновление ToolStripComboBox с передачей списка имен таблиц
+                UpdateToolStripComboBox(tableNames, toolStripComboBox1, ToolStripMenuEditor);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка открытия файла: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         // TODO: Доработать вывод и редактирование данных в бд access
         // Метод для открытия файла Access
         //public static void OpenAccessFile(DataGridView dataGridView1, string path, ToolStripComboBox toolStripComboBox1, ToolStripMenuItem ToolStripMenuEditor)
@@ -97,6 +127,22 @@ namespace obzor.Methods
         // TODO: Починить обновление данных при выборе другого листа
         // Проблема заключается в том, что ToolStripComboBoxSelectedIndexChanged и LoadFile находятся в разных файлах и возможно из-за tableCollection и originalDataTable
         // Обработчик выбора листа из выпадающего списка
+        public void ToolStripComboBoxSelectedIndexChanged(DataGridView dataGridView1, ToolStripComboBox toolStripComboBox1)
+        {
+            if (toolStripComboBox1.SelectedItem != null && tableCollection != null)
+            {
+                string selectedTable = toolStripComboBox1.SelectedItem.ToString();
+                if (tableCollection.Contains(selectedTable))
+                {
+                    DataTable table = tableCollection[selectedTable];
+                    dataGridView1.DataSource = table;
+                }
+                else
+                {
+                    MessageBox.Show($"Таблица {selectedTable} не найдена.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
 
         // Метод обновления листов
         public static void UpdateToolStripComboBox(List<string> tableNames, ToolStripComboBox toolStripComboBox1, ToolStripMenuItem toolStripMenuEditor)
